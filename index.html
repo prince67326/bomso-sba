@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BOMSO M/A JHS - SBA SYSTEM</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}body{margin:0;background:#f2f2f2;padding:12px}h1{color:#1a6b2e;margin:0;font-size:26px}h3{margin:4px 0 12px;color:#333;font-weight:400}
+#loginOverlay{position:fixed;inset:0;background:#0f3d1a;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.loginBox{background:#fff;width:100%;max-width:420px;border-radius:14px;padding:24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.loginBox img{width:90px;height:90px;object-fit:contain;margin:4px}
+.loginBox h2{margin:6px 0 2px;color:#1a6b2e;font-size:22px}.loginBox p{margin:0 0 14px;color:#555;font-size:13px}
+.loginBox label{display:block;text-align:left;font-weight:bold;font-size:13px;margin:10px 0 4px}
+.loginBox input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px}
+.loginBtn{width:100%;background:#1a6b2e;color:#fff;border:0;padding:13px;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:16px}
+.loginBtn:hover{background:#0f3d1a}#loginError{color:#c0392b;font-weight:bold;font-size:13px;min-height:18px;margin-top:10px}
+.topHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.topLogos{display:flex;gap:10px;align-items:center;flex-shrink:0}
+.topLogos img{width:72px;height:72px;object-fit:contain;background:#fff;border-radius:8px;padding:4px;border:1px solid #ddd}
+#watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.07}
+#watermark img{width:520px;height:520px;object-fit:contain}
+body>*{position:relative;z-index:1}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tabs button{background:#1a6b2e;color:#fff;border:0;padding:10px 14px;border-radius:6px;cursor:pointer;font-weight:bold}.tabs button.active{background:#0f3d1a}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;padding:10px;border-radius:8px;margin-bottom:10px}select,input{padding:8px;border:1px solid #ccc;border-radius:6px}.btn{background:#1a6b2e;color:#fff;border:0;padding:9px 14px;border-radius:6px;cursor:pointer;font-weight:bold}.btn.dark{background:#222}.btn.orange{background:#e67e22}.btn.red{background:#c0392b}.btn.green{background:#25D366;color:#000}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}th{background:#1a7a33;color:#fff;padding:6px;position:sticky;top:0}td{border:1px solid #ddd;padding:4px;text-align:center}td.name{text-align:left;font-weight:600}input.cell{width:52px;padding:5px;text-align:center;border:1px solid #ddd;border-radius:4px}input.cell.over{border:2px solid red;background:#ffe0e0}input.nameIn{width:100%;min-width:180px;padding:5px}
+select.att{width:100%;min-width:130px;padding:7px;border:1px solid #ddd;border-radius:4px;background:#fff}.formula{background:#fff3cd;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold;font-size:13px}
+.card{background:#fff;padding:14px;border-radius:10px;margin-bottom:10px}.report{border:2px solid #000;padding:10px;background:#fff;font-family:"Times New Roman",Times,serif;color:#000;position:relative;overflow:hidden}.report::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;height:420px;background-image:var(--wm-url);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.08;pointer-events:none}.broadWrap{overflow-x:auto;background:#fff}.broadWrap table{min-width:1100px}.gradeCell{font-weight:bold;background:#f0f8f0}.passBox{font-weight:bold;margin:10px 0}
+.dashGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px}.dashCard{background:#fff;border-radius:10px;padding:14px;text-align:center;border-top:5px solid #1a6b2e}.dashCard b{font-size:28px;color:#1a6b2e;display:block}.dashCard span{font-size:12px;color:#555}.barChart{height:18px;background:#e0e0e0;border-radius:10px;overflow:hidden}.barChart div{height:100%;background:#1a6b2e}
+.repHead{display:flex;justify-content:space-between;align-items:flex-start;text-align:center}.repHead img{width:85px;height:85px;object-fit:contain}.repHead .mid{flex:1}.repHead h2{margin:0;font-size:20px;letter-spacing:1px}.repHead h3{margin:0;font-size:18px}.repHead h4{margin:2px 0;font-size:16px}.repHead h5{margin:2px 0;font-size:15px;text-decoration:underline}
+.repMeta{border:1px solid #000;margin:8px 0;padding:6px;font-size:13px;font-weight:bold}.repMeta table{font-size:13px}.repMeta td,.repMeta th{border:0;text-align:left;padding:2px 4px;background:#fff}
+.repTable th,.repTable td{border:1px solid #000;padding:5px;font-size:13px;background:#fff;color:#000}.repTable th{background:#fff}.repFoot{border:1px solid #000;padding:6px;margin-top:6px;font-size:13px;font-weight:bold}.repFoot table{font-size:13px}.repFoot td,.repFoot th{border:0;text-align:left;background:#fff;padding:2px}
+.repBottom{display:flex;gap:0;border:1px solid #000;margin-top:6px;font-size:12px}.repBottom>div{flex:1;border-right:1px solid #000;padding:6px}.repBottom>div:last-child{border-right:0}
+.broadSign{display:flex;justify-content:space-between;gap:10px;margin-top:30px;font-size:13px;text-align:center}.broadSign div{flex:1}.broadSign .line{border-top:1px solid #000;margin-top:40px;padding-top:4px;font-weight:bold}
+@media print{
+.no-print,.tabs,.bar,#title,.formula,.btn,button,#loginOverlay,.dashGrid,.noPrintInBroad{display:none!important}
+body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h3{display:none!important}
+.topHeader{display:flex!important}
+.topHeader h1,.topHeader h3{display:block!important}
+.card{padding:0}
+.report{border:2px solid #000;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.printAll .report{page-break-after:always}
+#gradePassSection,#overallPass,#broadTopButtons,#broadButtons{display:none!important;visibility:hidden!important;height:0!important}
+#broadTitle{font-size:16px}
+#watermark{opacity:.07!important;display:block!important}
+.broadSign{display:flex!important}
+}
+</style></head><body>
+<div id="loginOverlay">
+<div class="loginBox">
+<div><img id="loginCoat" src="ghana-coat.png" onerror="this.style.display='none'"><img id="loginLogo" src="bomso-logo.png" onerror="this.style.display='none'"></div>
+<h2>BOMSO M/A JHS</h2>
+<p>School Based Assessment System<br>Please login to continue</p>
+<label>Email Address</label>
+<input id="loginEmail" type="email" placeholder="e.g. teacher@bomso.edu.gh" autocomplete="email">
+<label>Password</label>
+<input id="loginPass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+<button class="loginBtn" onclick="doLogin()">🔓 LOGIN</button>
+<div id="loginError"></div>
+<p style="font-size:11px;color:#888;margin-top:12px">Only authorised teachers can access this system.</p>
+</div>
+</div>
+
+<div id="watermark"><img id="watermarkImg" src="bomso-logo.png" onerror="this.style.display='none'"></div>
+<div class="topHeader no-print">
+<div>
+<h1>BOMSO M/A JHS - SBA SYSTEM</h1>
+<h3>School Based Assessment Score Sheet - Academic Year: <select id="academicYear" onchange="changeAcademicYear()" style="font-weight:bold;color:#1a6b2e"></select></h3>
+</div>
+<div class="topLogos">
+<img id="topCoat" src="ghana-coat.png" onerror="this.style.display='none'" alt="Ghana Coat of Arms">
+<img id="topLogo" src="bomso-logo.png" onerror="this.style.display='none'" alt="Bomso Logo">
+<button class="btn red" onclick="logoutSystem()" style="margin-left:6px">Logout</button>
+</div>
+</div>
+<div class="tabs no-print">
+<button onclick="showTab(0,this)">0. Dashboard 📊 🔒</button>
+<button class="active" onclick="showTab(1,this)">1. Per Subject</button>
+<button onclick="showTab(2,this)">2. AttitudePlus</button>
+<button onclick="showTab(3,this)">3. Broadsheet Combined 🔒</button>
+<button onclick="showTab(4,this)">4. Terminal Report 🔒</button>
+</div>
+
+<div class="bar no-print">
+<label>Class: <select id="cls" onchange="render()"></select></label>
+<label>Subject: <select id="subj" onchange="render()"><option>English Language</option><option>Mathematics</option><option>Integrated Science</option><option>Social Studies</option><option>RME</option><option>Career Technology</option><option>Creative Arts</option><option>Computing</option><option>French</option><option>Asante Twi</option></select></label>
+<label>Term: <select id="term" onchange="render()"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></label>
+<input id="search" placeholder="Search..." oninput="render()">
+<button class="btn" onclick="addLearner()">+ Add Learner</button>
+<button class="btn" onclick="save()">Save</button>
+<button class="btn" onclick="syncNames()">Sync Names From Class</button>
+<button class="btn dark" onclick="window.print()">Print</button>
+</div>
+<div id="title" class="no-print" style="font-weight:bold;margin-bottom:8px"></div>
+
+<div id="tab0" style="display:none">
+<div class="dashGrid">
+<div class="dashCard"><b id="dashTotal">0</b><span>Total Learners</span></div>
+<div class="dashCard"><b id="dashClasses">0</b><span>Total Classes</span></div>
+<div class="dashCard"><b id="dashPass">0%</b><span>Overall Pass % (AGGR ≤30)</span></div>
+<div class="dashCard"><b id="dashBestLearner" style="font-size:16px">-</b><span>Best Learner (Lowest AGGR)</span></div>
+<div class="dashCard"><b id="dashBestClass" style="font-size:16px">-</b><span>Best Class (Highest Pass %)</span></div>
+</div>
+<div class="card">
+<h3 style="margin:0 0 8px">🔍 Search Learner Across All Classes</h3>
+<input id="globalSearch" placeholder="Type learner name e.g. AMA..." style="width:100%;max-width:400px" oninput="searchLearnerGlobal()">
+<div id="globalResult" style="margin-top:10px"></div>
+</div>
+<div class="card"><h3 style="margin:0 0 8px">📊 Pass % By Class</h3><div id="dashByClass"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">🏆 Top 10 Learners - Whole School</h3><div id="dashTop10"></div></div>
+</div>
+
+<div id="tab1">
+<table><thead><tr><th>NO</th><th>NAME</th><th>SEX</th><th>IND 30</th><th>GRP 20</th><th>CLS 30</th><th>PRO 20</th><th>TTL 100</th><th>100s 50M</th><th>EXM 100</th><th>EXM 50%</th><th>ALL 100%</th><th>POS</th><th>GRADE</th><th>REMARKS</th></tr></thead><tbody id="tbody"></tbody></table>
+<button class="btn no-print" style="margin-top:10px" onclick="addLearner()">+ Add Learner</button>
+<div class="formula">REMARKS (by Grade): 1=Highest | 2=Higher | 3=High | 4=High Average | 5=Average | 6=Low Average | 7=Low | 8=Lower | 9=Lowest / Below &nbsp; | &nbsp; GRADE (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9</div>
+</div>
+
+<div id="tab2" style="display:none">
+<div class="bar no-print"><b>AttitudePlus - <span id="attTitle"></span></b> <button class="btn" onclick="saveAttitude()">Save Attitude</button> <button class="btn dark" onclick="window.print()">Print Attitude</button></div>
+<table><thead><tr><th>S#</th><th>NAMES OF PUPILS</th><th>ATTENDANCE</th><th>CONDUCT</th><th>ATTITUDE</th><th>INTEREST</th><th>CLASS TRS RMKS</th></tr></thead><tbody id="attBody"></tbody></table>
+<div class="formula">Teacher's Remarks stay as before.</div>
+</div>
+
+<div id="tab3" style="display:none">
+<div class="card">
+<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><b id="broadTitle"></b> <span id="broadTopButtons" class="no-print"><button class="btn red" onclick="lockReports()">🔒 Lock Reports</button> <button class="btn" onclick="exportBroadsheetCSV()">⬇ Download Excel</button> <button class="btn" onclick="window.print()">Print Broadsheet</button></span></div>
+<div class="broadWrap"><table>
+<thead><tr><th>S#</th><th>NAME</th><th colspan="2">ENG</th><th colspan="2">MATH</th><th colspan="2">SOC</th><th colspan="2">SCI</th><th colspan="2">GH LANG</th><th colspan="2">RME</th><th colspan="2">ICT</th><th colspan="2">FREN</th><th colspan="2">CAD</th><th colspan="2">C&amp;T</th><th>TOTAL</th><th>AGGR</th><th>RawScore</th><th>POSITION</th></tr>
+<tr><th></th><th></th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th></th><th></th><th></th><th></th></tr></thead>
+<tbody id="broadBody"></tbody></table></div>
+<div class="passBox" id="overallPass"></div>
+<div id="gradePassSection"><h3 style="margin-top:16px">GRADES &amp; PASS BY SUBJECT</h3>
+<div class="broadWrap"><table><thead><tr><th>SUBJECT</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>PASS (1-6)</th></tr></thead><tbody id="gradePassBody"></tbody></table></div></div>
+<div class="broadSign"><div><div class="line">PREPARED BY<br><span style="font-weight:400">Class / Subject Teacher</span></div></div><div><div class="line">CHECKED BY<br><span style="font-weight:400">Headteacher</span></div></div><div><div class="line">DATE<br><span style="font-weight:400" id="broadDate"></span></div></div></div>
+<div class="formula">Grading (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9 | AGGR = Sum of Best 6 Grades | Names stay in class-list order</div>
+</div>
+</div>
+
+<div id="tab4" style="display:none">
+<div class="card no-print">
+<label>Select Learner: <select id="repLearner" onchange="renderReport()"></select></label>
+<button class="btn" onclick="prevLearner()">← Prev</button> <button class="btn" onclick="nextLearner()">Next →</button>
+<button class="btn dark" onclick="printOne()">Print This Report</button> <button class="btn dark" onclick="printAll()">Print ALL Reports</button> <button class="btn green" onclick="sendWhatsAppCurrent()">💬 Send Result on WhatsApp</button> <button class="btn red" onclick="lockReports()">🔒 Lock Reports</button><br><br>
+<label>Vacation Date: <input id="vacDate" value="23RD JULY, 2026" onchange="saveMeta()"></label>
+<label>Re-opening Date: <input id="reopenDate" value="8TH SEPTEMBER, 2026" onchange="saveMeta()"></label>
+<label>Year: <input id="repYear" value="2026/2027" style="width:110px" onchange="saveMeta()"></label>
+<label>Promotion: <select id="promoStatus" onchange="saveMeta()"><option>PROMOTED TO BS8</option><option>PROMOTED TO BS9</option><option>PROMOTED TO BS7</option><option>REPEATED</option><option>PROMOTED</option></select></label>
+<label>Headteacher Tel: <input id="headTel" placeholder="Class/Form Teacher Tel No." onchange="saveMeta()"></label>
+<br><br>
+<div style="background:#fff3cd;padding:10px;border-radius:8px">
+<label class="btn orange" style="display:inline-block;margin-top:6px">📤 Upload Coat of Arms <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('coat',this)"></label> <span id="coatStatus">Not uploaded yet</span><br>
+<label class="btn orange" style="display:inline-block;margin-top:6px">📤 Upload School Logo <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('logo',this)"></label> <span id="logoStatus">Not uploaded yet</span>
+</div>
+</div>
+<div id="reportArea"></div><div id="printAllArea"></div></div>
+
+<script>
+const REPORT_PASS="Bomso124";
+const LOGIN_PASS="Bomso124";
+let reportsUnlocked=false;
+function doLogin(){let email=document.getElementById('loginEmail').value.trim();let pass=document.getElementById('loginPass').value;let err=document.getElementById('loginError');let emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);if(!email){err.innerText='Please enter your email address.';return;}if(!emailOk){err.innerText='Please enter a valid email e.g. teacher@bomso.edu.gh';return;}if(!pass){err.innerText='Please enter password.';return;}if(pass!==LOGIN_PASS){err.innerText='Wrong password! Access denied.';return;}err.innerText='';document.getElementById('loginOverlay').style.display='none';sessionStorage.setItem('bomso_loggedin',email);}
+function logoutSystem(){sessionStorage.removeItem('bomso_loggedin');document.getElementById('loginPass').value='';document.getElementById('loginError').innerText='You have logged out.';document.getElementById('loginOverlay').style.display='flex';}
+const DATA=[
+["JHS 1A","ABDUL MUMIN MAMUNATU","F"],["JHS 1A","ACHEAMPONG ELVIS","M"],["JHS 1A","ACQUAH BISMARK","M"],["JHS 1A","ADJEI JANET","F"],["JHS 1A","ADZOKO PATIENCE","F"],["JHS 1A","AGBEKO EMMANUEL","M"],["JHS 1A","AIKENS MILDRED","F"],["JHS 1A","AKAPUNI THERESAH","F"],["JHS 1A","AMENYO SARAH","F"],["JHS 1A","AMOAKO EMELIA","F"],["JHS 1A","AMOAKWA NYARKO ROSE","F"],["JHS 1A","ANTHONY ESTHER","F"],["JHS 1A","APPIAH NHYIRABA NANA","M"],["JHS 1A","ARTHUR BAIDOO MICHELLE","F"],["JHS 1A","ASSAN BLESSING","F"],["JHS 1A","ATOBIA CINDY","F"],["JHS 1A","BAIDOO CECILIA","F"],["JHS 1A","BOAKYE SERWAA DOROTHY","F"],["JHS 1A","BOATEMAA AUGUSTINA","F"],["JHS 1A","DOVI THOMAS","M"],["JHS 1A","FYNN PATRICK","M"],["JHS 1A","KAKORA KEZIAH","F"],["JHS 1A","KOLOG BETTY","F"],["JHS 1A","KUMI TUTU WILLIAM","M"],["JHS 1A","MAWULI DIVINE","M"],["JHS 1A","MENSAH REBECCA","F"],["JHS 1A","MOHAMMED MARIAM","F"],["JHS 1A","NTI JEFFREY","M"],["JHS 1A","OFOBI BRIDGET","F"],["JHS 1A","OSEI BONSU MIRACLE","M"],["JHS 1A","OTENG KWAKU","M"],["JHS 1A","OTOO GIFTY","F"],["JHS 1A","OWUSU KINGSLEY","M"],["JHS 1A","OWUSUAA RICHLOVE","F"],["JHS 1A","QUAINOO DAUGLAS","M"],["JHS 1A","SARFO YAW BLESSING","M"],["JHS 1A","TAWIA FAUSTINA","F"],["JHS 1A","TEE ISREAL","M"],["JHS 1A","TUMOR ESTHER","F"],["JHS 1A","ZAN KOSSI SAMUEL","M"],["JHS 1A","MENSAH SARIAM EMMANUELLA","F"],
+["JHS 1B","ABOAGYE BOATENG RANSFORD","M"],["JHS 1B","ACHEAMPONG MOSES","M"],["JHS 1B","ADDAI KWABENA JOHN","M"],["JHS 1B","ADU NKRUMAH MARVIN","M"],["JHS 1B","AFFUL FLORENCE","F"],["JHS 1B","AGBEMEFAH ISAIAH","M"],["JHS 1B","AKANGAIBA CHRISTIAN","M"],["JHS 1B","AKORLI CHRISTABEL","F"],["JHS 1B","AMANKWAA HENRY","M"],["JHS 1B","AMEYAA AMA","F"],["JHS 1B","AMOAKO BROBBEY CHARLSE","M"],["JHS 1B","AMPONSAH ELIZABETH","F"],["JHS 1B","ANTWI BOAFO DERRICK","M"],["JHS 1B","ASIEWEN BLESS","F"],["JHS 1B","ATOBIA BENARD","M"],["JHS 1B","ATTAH BEATRICE","F"],["JHS 1B","BAIDOO CHRISTABEL","F"],["JHS 1B","BOAMAH BERNICE","F"],["JHS 1B","DANKWA SERWAA DIVIAN","F"],["JHS 1B","ELOLO CREEPY MICHAEL","M"],["JHS 1B","GARMAH JOSEPH","M"],["JHS 1B","KISSIWAA ANGELA","F"],["JHS 1B","KUSI APPIAH VICTORIA","F"],["JHS 1B","MAWULI FLORENCE","F"],["JHS 1B","MENSAH ENYONAM CONFIDENCE","F"],["JHS 1B","NEVAME REGINA AGBRAKEY","F"],["JHS 1B","NUKPETSI CHRISTIAN","M"],["JHS 1B","OFOSU ANIN HAGAR","F"],["JHS 1B","OSEI OWUSU PAMELA","F"],["JHS 1B","OWUSU BANAHENE RAMZI","M"],["JHS 1B","PETER BENTIL","M"],["JHS 1B","QUAINOO WENDY","F"],["JHS 1B","SARFO KWADWO CALEB J.","M"],["JHS 1B","SUGWEY ERNESTINA","F"],["JHS 1B","TAWIAH COMFORT","F"],["JHS 1B","TIBILA DAVID","M"],["JHS 1B","YAKUBU PORTIA","F"],["JHS 1B","YEAMKUTUOYEL DORCAS","F"],
+["JHS 1C","ABRAFI NANA AMA","F"],["JHS 1C","ACQUAH GODLOVE","M"],["JHS 1C","ADDAI CLEMENT","M"],["JHS 1C","ADUSU CHRISTIAN","M"],["JHS 1C","AGBEDZORFE SESHIMEY","F"],["JHS 1C","AGYAPONG KWAKU","M"],["JHS 1C","AKANWEY PATIENCE","F"],["JHS 1C","AMENYAGLO RICHMOND","M"],["JHS 1C","AMOA-YAW KODUA GOSPEL","M"],["JHS 1C","AMOAKO ERNEST","M"],["JHS 1C","ANOKYE GETRUDE","F"],["JHS 1C","ANTWI SAMUEL","M"],["JHS 1C","ASOMGEGO ABIGAIL","F"],["JHS 1C","ATOBIA BEMJAMIN","M"],["JHS 1C","AYINE LOVINJA","F"],["JHS 1C","BANDOH JOEL","M"],["JHS 1C","BOAMPONG DOMINIC","M"],["JHS 1C","DOGBE KWAKU RICHARD","M"],["JHS 1C","FIAKU SARAH","F"],["JHS 1C","GBORNUITAH THERESAH","F"],["JHS 1C","HELETSI JOEL","M"],["JHS 1C","KPORDZO MABEL","F"],["JHS 1C","MANU NKANSAH PETER","M"],["JHS 1C","MENSAH SERIAN EMMANUELLA","F"],["JHS 1C","MENYANSAH JOSHUA","M"],["JHS 1C","MIKEHU MARTIN","M"],["JHS 1C","NKRUMAH JOSEPH","M"],["JHS 1C","OBENG GRACE","F"],["JHS 1C","OPPONG RICHEL","F"],["JHS 1C","OSEI ERNESTINA","F"],["JHS 1C","OSEI CLEMENT","M"],["JHS 1C","OWUSU ANSAH WINIFRED","F"],["JHS 1C","QUAINOO DANIEL","M"],["JHS 1C","QUANSAH COLLINA","F"],["JHS 1C","TAKYI MAXWELL","M"],["JHS 1C","TAWIAH GLORIA","F"],["JHS 1C","TONYVIADZI HILDA","F"],["JHS 1C","YAKUBU AISHA","F"],
+["JHS 2A","ABEKA ALICIA PRINCESS","F"],["JHS 2A","ABU-BONSRAH GEORGINA","F"],["JHS 2A","ACHEAMPONG BRIDGET","F"],["JHS 2A","ADABOYA BLESSING","F"],["JHS 2A","ADETARIMAH SINORITA MIRIAM","F"],["JHS 2A","ADOODZI CLEMENT","M"],["JHS 2A","AFIWAA DORA SOGBO","F"],["JHS 2A","AFRAM ANAS","M"],["JHS 2A","AHUN NYAABA STEPHANIE","F"],["JHS 2A","AKAKPO YAW","M"],["JHS 2A","AMOAKO GODFRED","M"],["JHS 2A","AMPONSAH KELVIN","M"],["JHS 2A","AMUZU ZION","M"],["JHS 2A","ANTWIWAA FELICIA","F"],["JHS 2A","APPIAH EVA","F"],["JHS 2A","ARKO CECILIA","F"],["JHS 2A","ATISO JENNIFER","F"],["JHS 2A","ATOBIA HENRY","M"],["JHS 2A","AWUNI GRACELYN AKADIRI","F"],["JHS 2A","DANQUAH BRIGHT OWUSU","M"],["JHS 2A","DANSO FLORENCE","F"],["JHS 2A","KWAKYE SAMUELLA","F"],["JHS 2A","KYEREMATENG LORDINA OWUSUWAA","F"],["JHS 2A","MENSAH FRANK CHARLES","M"],["JHS 2A","MENYANSA KWAME","M"],["JHS 2A","MWINFAAR MAYBEL","F"],["JHS 2A","NAMALTENG THEOPHILLIA","F"],["JHS 2A","NIMO AMBROSE BAFFOUR","M"],["JHS 2A","NYANUBAH HUBERT PRINCE","M"],["JHS 2A","OBENG MERIAM ADOM","F"],["JHS 2A","OWUSU WILLIAMS PREMPEH","M"],["JHS 2A","PELLINYIN EMMANUELLA","F"],["JHS 2A","QUANSAH ANNABEL","F"],["JHS 2A","TETTEH EVA","F"],["JHS 2A","TUFFOUR-YEBOAH ADOMAA FLORENCE","F"],
+["JHS 2B","ADASI RITA RITA","F"],["JHS 2B","ADDAI VICTORIA","F"],["JHS 2B","ADJOKO FAMOUS","M"],["JHS 2B","ADOMOLGA PROVIDENCE","F"],["JHS 2B","ADZAKLO HELENA","F"],["JHS 2B","AGBOZO REDEEMER","F"],["JHS 2B","AGYEI FRANCIS","M"],["JHS 2B","AGYEI FAVOUR ASANTEWAA","F"],["JHS 2B","AKAKPO RAYMOND","M"],["JHS 2B","AKAKPO SARAPHINA","F"],["JHS 2B","AKANTAME RICHMOND YAHAYA","M"],["JHS 2B","AMEVI ESTHER SIMON","F"],["JHS 2B","AMPOFO JAMES","M"],["JHS 2B","ANDZIE ROCKSON","M"],["JHS 2B","ANDZIE KELVIN","M"],["JHS 2B","ANNAN DOROTHY GYAMERAH","F"],["JHS 2B","ARTHUR ELIZABETH","F"],["JHS 2B","ASSAH SAMUEL","M"],["JHS 2B","BADAKOM ALICE","F"],["JHS 2B","BENEWAA BEATRICE","F"],["JHS 2B","HAMZA JERRY","M"],["JHS 2B","MUSAH SEKINA","F"],["JHS 2B","NAAB HANNAH","F"],["JHS 2B","NAWUMBEY SEIDU","M"],["JHS 2B","OFORI DANIEL","M"],["JHS 2B","OFORI WAA FLORENCE","F"],["JHS 2B","OSAAH MARY","F"],["JHS 2B","OSMAN JIBRIL MOHAMMED","M"],["JHS 2B","OTENG EMMANUEL","M"],["JHS 2B","PELLINYM DANIELLA","F"],["JHS 2B","SALAM MUDAT","F"],["JHS 2B","SARFO NOAH","M"],["JHS 2B","YIN HANNAH","F"],["JHS 2B","YINTET BRIGHTINA ZOOG","F"],
+["JHS 2C","ACHAW ACHAW","F"],["JHS 2C","ADOBILA RAYMOND","M"],["JHS 2C","AGYEMANG JOSEPHINE","F"],["JHS 2C","AHUN STEPHAN GORMAN","M"],["JHS 2C","ALINYO AGARTHA","F"],["JHS 2C","AMENU JENNIFER","F"],["JHS 2C","AMOAH CHARITY","F"],["JHS 2C","AMOFA DENNIS","M"],["JHS 2C","AMUZU ANDRANA","F"],["JHS 2C","ANTHONY KINGSLEY","M"],["JHS 2C","ARTHUR FAUSTINA","F"],["JHS 2C","ARTHUR JONATHAN","M"],["JHS 2C","BAHENSE FATI","F"],["JHS 2C","BOAKYE JENNIFER","F"],["JHS 2C","DOGLI CHRISTOPHER","M"],["JHS 2C","ESSUMAN JEFFERY","M"],["JHS 2C","FRIMPONG WENDY KYERAA","F"],["JHS 2C","FRIMPONGMAA FREDA","F"],["JHS 2C","GYAN COMFORT","F"],["JHS 2C","MENSAH ROSE","F"],["JHS 2C","MENSAH RICHMOND","M"],["JHS 2C","MORTSO BERNARD","M"],["JHS 2C","NYAMEKYE COMFORT FORKUO","F"],["JHS 2C","OBRISI CHRIS","M"],["JHS 2C","OPOKU GIDEON","M"],["JHS 2C","OSEI MARGARET","F"],["JHS 2C","OWUSU BERNARD TAKYI","M"],["JHS 2C","SOSU DANIEL","M"],["JHS 2C","TERKPER GIFTY GIFTY","F"],["JHS 2C","TETTEH JESSICA KODUAH","F"],["JHS 2C","TWENEBOAH KWAME KODUAH","M"],["JHS 2C","WORKEDZI SAMUEL","M"],["JHS 2C","YEBOAH-TUFFOUR A. FLORENCE","F"],["JHS 2C","YORK STEPHEN","M"],
+["JHS 3A","ACQUAH RUTH","F"],["JHS 3A","ADARKWAH LILIAN","F"],["JHS 3A","ADZOKO AMANDA","F"],["JHS 3A","AFORU EMMANUELLA","F"],["JHS 3A","AGOOWAH EMMANUELLA","F"],["JHS 3A","AKORABOUR BLESSING","F"],["JHS 3A","AMUZU GLORIA","F"],["JHS 3A","APPIAH BLESSING","F"],["JHS 3A","APPIAH BLESSING SERWAA","F"],["JHS 3A","ATOTINGA MILDRED","F"],["JHS 3A","ATSU RUTH","F"],["JHS 3A","KWAMAH HERTY","F"],["JHS 3A","MENSAH FELICIA","F"],["JHS 3A","NAMKENA CINDY","F"],["JHS 3A","NYAABA MICHELLE","F"],["JHS 3A","OPPONG ELIZABETH","F"],["JHS 3A","SAGOE CLARA BOATEMAA","F"],["JHS 3A","SARPONG COMFORT SERWAA","F"],["JHS 3A","ABUBAKARI MAXWELL","M"],["JHS 3A","AGYEI PAUL","M"],["JHS 3A","APPAU FRANK","M"],["JHS 3A","BOADI GRIFFITH","M"],["JHS 3A","BOATENG ROLAND FRIMPONG","M"],["JHS 3A","BUODU JOEL BENIN DEYI","M"],["JHS 3A","DOGBEY JUSTICE","M"],["JHS 3A","GYASI STEPHEN","M"],["JHS 3A","HIATORPE CLINTON","M"],["JHS 3A","KAKORA GABRIEL","M"],["JHS 3A","NUKPORFE DIVINE KWAME","M"],["JHS 3A","OPOKU CHRISTIAN","M"],["JHS 3A","OSEI WILLIAMS","M"],["JHS 3A","OWUSU RAYMOND YEBOAH","M"],["JHS 3A","YAMOAH EMMANUEL JOSEPH AFORO NKRUMAH","M"],["JHS 3A","YEBOAH LIAM NANA OTENG","M"],
+["JHS 3B","ACHIAA GEORGINA","F"],["JHS 3B","ANTWI YVONNE","F"],["JHS 3B","ARHINFUL EVELYN","F"],["JHS 3B","AWUNI GRACE","F"],["JHS 3B","DANSOWAA CHRISTIANA","F"],["JHS 3B","FYNN MAVIS","F"],["JHS 3B","MENSAH BLESSING","F"],["JHS 3B","NARTEY GLADYS","F"],["JHS 3B","NKRUMAH ESTHER ABENA","F"],["JHS 3B","BOAKYE EUNICE NYANEKYE","F"],["JHS 3B","ODURO MARY","F"],["JHS 3B","OFORI ANITA","F"],["JHS 3B","OSEI EVA","F"],["JHS 3B","TUMOR SANDRA","F"],["JHS 3B","AGBEKPORNU PROSPER","M"],["JHS 3B","AGYEI DANIEL","M"],["JHS 3B","AIDOO EMMANUEL","M"],["JHS 3B","ANOKYE-AMOAKO SETH","M"],["JHS 3B","BOAKYE JOSEPH ASAMOAH","M"],["JHS 3B","ATTIMPAADEM GODBLESS","M"],["JHS 3B","BAFFOUR KYEI ANDERSON","M"],["JHS 3B","DANKWA PRINCE KUSI","M"],["JHS 3B","HAGAN EMMANUEL","M"],["JHS 3B","OPOKU JUNIOR APPIAH","M"],["JHS 3B","OSEI GEORGE BOAMAH","M"],["JHS 3B","OSEI SAMUEL","M"],["JHS 3B","OWUSU CINDY BOATENG","F"],["JHS 3B","TSIKATA HOPESON","M"],["JHS 3B","TWENEBOAH SENIOR ATTA","M"],["JHS 3B","TWUMASI WILLIAM","M"],["JHS 3B","ZAN EBENEZER WISDOM","M"],
+["JHS 3C","ACQUAH RACHEAL","F"],["JHS 3C","AKOBIYA ABIGAIL","F"],["JHS 3C","ANSAH ASEDA","F"],["JHS 3C","ASIGBE ROSA","F"],["JHS 3C","DANSO ELLEN","F"],["JHS 3C","FOSU CHRISTABEL","F"],["JHS 3C","MICAH VIDA","F"],["JHS 3C","OSEI GEORGINA BOAMAH","F"],["JHS 3C","OSEI EVELYN","F"],["JHS 3C","OWUSU DIANA AMOATENG","F"],["JHS 3C","SARFO SARAH AMA","F"],["JHS 3C","YAABA CHRISTABEL EFFUA","F"],["JHS 3C","YIRAAN PURE","F"],["JHS 3C","YIRAAN PRINCE","M"],["JHS 3C","ADJEI SOLOMON MAWUKOEYNA","M"],["JHS 3C","AKOMEAH GIOVANNI","M"],["JHS 3C","AMEVI MAXWEL","M"],["JHS 3C","AMOAFUL SAMUEL","M"],["JHS 3C","AMUZU ANDREWS","M"],["JHS 3C","ANSAH RANSFORD","M"],["JHS 3C","ARTHUR GODFRED","M"],["JHS 3C","AWUTEY ERIC","M"],["JHS 3C","KUDOLO FERDINAND","M"],["JHS 3C","MENSAH SHADRACK","M"],["JHS 3C","MUNTARI EMMANUEL","M"],["JHS 3C","NDAANA ROLAND","M"],["JHS 3C","NKRUMAH EMMANUEL KOJO","M"],["JHS 3C","NTIAMOAH SAMUEL","M"],["JHS 3C","NYAMEDEA DIVINE","M"],["JHS 3C","OTOO SYLVESTER","M"],["JHS 3C","POKU AKWASI","M"],["JHS 3C","TAWIAH JEAL KWAKU","M"]
+];
+let classes=[...new Set(DATA.map(d=>d[0]))];
+let store=JSON.parse(localStorage.getItem('bomso_v2')||'{}');
+let attStore=JSON.parse(localStorage.getItem('bomso_att')||'{}');
+let metaStore=JSON.parse(localStorage.getItem('bomso_meta')||'{}');
+let logoStore=JSON.parse(localStorage.getItem('bomso_logos')||'{}');
+const MAX={ind:30,grp:20,cls:30,pro:20,exm:100};
+const OPTS={conduct:["","Excellent","Very Good","Good","Fair","Poor","Needs Improvement"],attitude:["","Excellent","Very Good","Good","Fair","Poor","Positive","Respectful","Cooperative"],interest:["","Reading","Mathematics","Science","English","Football","Sports","Music","Drawing","Dancing","Computing","Art","Farming","Cooking"],remarks:["","Excellent performance","Very Good","Good","Keep it up","Satisfactory","Needs Improvement","Can do better","Work harder","Promoted","Excellent - Keep it up"]};
+const BROAD_SUBJECTS=[
+{code:"ENG",full:"English Language"},
+{code:"MATH",full:"Mathematics"},
+{code:"SOC",full:"Social Studies"},
+{code:"SCI",full:"Integrated Science"},
+{code:"GH LANG",full:"Asante Twi"},
+{code:"RME",full:"RME"},
+{code:"ICT",full:"Computing"},
+{code:"FREN",full:"French"},
+{code:"CAD",full:"Creative Arts"},
+{code:"C&T",full:"Career Technology"}
+];
+const REP_SUBJECTS=["English Language","Mathematics","Integrated Science","Creative Arts","Computing","RME","Asante Twi","Social Studies","French","Career Technology"];
+const REP_LABEL={ "English Language":"English Language","Mathematics":"Mathematics","Integrated Science":"Science","Creative Arts":"Creative Art","Computing":"Computing","RME":"Religious and Moral","Asante Twi":"Ghanaian Language","Social Studies":"Social Studies","French":"French","Career Technology":"Career Technology"};
+function beceGrade(m){if(m==null||m===''||isNaN(m))return null; m=+m; if(m>=90)return 1; if(m>=80)return 2; if(m>=70)return 3; if(m>=60)return 4; if(m>=55)return 5; if(m>=50)return 6; if(m>=40)return 7; if(m>=35)return 8; return 9;}
+function gradeRemark(g){return {1:'HIGHEST',2:'HIGHER',3:'HIGH',4:'HIGH AVERAGE',5:'AVERAGE',6:'LOW AVERAGE',7:'LOW',8:'LOWER',9:'LOWEST'}[g]||'-';}
+function grade(s){let g=beceGrade(s);return [g==null?'-':g, gradeRemark(g)];}
+function suffix(n){if(n==1)return '1st';if(n==2)return '2nd';if(n==3)return '3rd';return n+'th';}
+function buildAcademicYears(){let sel=document.getElementById('academicYear');let opts=[];for(let i=0;i<20;i++){let y=2026+i;opts.push(`<option>${y}/${y+1}</option>`);}sel.innerHTML=opts.join('');let saved=metaStore.academicYear||metaStore.year||'2026/2027';if(opts.some(o=>o.includes(saved)))sel.value=saved;else sel.value='2026/2027';}
+function changeAcademicYear(){let v=document.getElementById('academicYear').value;metaStore.academicYear=v;metaStore.year=v;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ry=document.getElementById('repYear');if(ry)ry.value=v;renderReport();}
+function attKey(){return document.getElementById('cls').value+'|'+document.getElementById('term').value}
+function getAtt(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=attKey();if(!attStore[k]){attStore[k]=list.map(d=>({name:d[1],att:'',conduct:'',attitude:'',interest:'',remarks:''}))}return attStore[k]}
+function key(){return document.getElementById('cls').value+'|'+document.getElementById('subj').value+'|'+document.getElementById('term').value}
+function getRows(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();if(!store[k]){store[k]=list.map(d=>({name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''}))}return store[k]}
+function getScoreFor(cls,subj,term,name){let k=cls+'|'+subj+'|'+term;let arr=store[k];if(!arr)return null;let r=arr.find(x=>x.name==name);if(!r)return null;let has=(r.ind!==''||r.grp!==''||r.cls!==''||r.pro!==''||r.exm!=='');if(!has)return null;let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);return {class50:ttl/2, exam50:(+r.exm||0)/2, total:ttl/2+(+r.exm||0)/2};}
+function getSubjectPosition(cls,subj,term,name){let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let scores=names.map(n=>{let s=getScoreFor(cls,subj,term,n);return {name:n,total:s?s.total:-1}});let sorted=[...scores].sort((a,b)=>b.total-a.total);let idx=sorted.findIndex(x=>x.name==name);if(idx<0)return '-';let my=scores.find(x=>x.name==name);if(my.total<0)return '-';let rank=1;for(let i=0;i<idx;i++){if(sorted[i].total>my.total)rank++;}return suffix(rank);}
+function getBroadPosition(cls,term,name){let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let data=names.map(n=>{let grades=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,n);grades.push(m?beceGrade(m.total):null)});let vg=grades.filter(g=>g!=null).sort((a,b)=>a-b);let aggr=vg.slice(0,6).reduce((a,b)=>a+b,0);let marks=BROAD_SUBJECTS.map(s=>{let m=getScoreFor(cls,s.full,term,n);return m?m.total:null}).filter(x=>x!=null);let raw=marks.length?marks.reduce((a,b)=>a+b,0)/marks.length:0;return {name:n,aggr,raw}});let ranked=[...data].sort((a,b)=>(a.aggr-b.aggr)||(b.raw-a.raw));let idx=ranked.findIndex(x=>x.name==name);if(idx<0)return '-';let my=data.find(x=>x.name==name);let rank=1;for(let i=0;i<idx;i++){if(ranked[i].aggr<my.aggr||(ranked[i].aggr==my.aggr&&ranked[i].raw>my.raw))rank++;}return suffix(rank);}
+function learnerSummary(cls,term,name){let marks=[];let grades=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,name);marks.push(m?m.total:null);grades.push(m?beceGrade(m.total):null);});let vg=grades.filter(g=>g!=null).sort((a,b)=>a-b);let aggr=vg.slice(0,6).reduce((a,b)=>a+b,0);let vm=marks.filter(m=>m!=null);let raw=vm.length?vm.reduce((a,b)=>a+b,0)/vm.length:0;let total=vm.length?vm.reduce((a,b)=>a+b,0):0;return {aggr,raw,total,grades,marks};}
+function showTab(n,el){if((n==0||n==3||n==4)&&!reportsUnlocked){let p=prompt("🔒 This section is protected.\nEnter password to view Dashboard / Broadsheet / Terminal Report:");if(p!==REPORT_PASS){alert("Wrong password! Access denied.");return;}reportsUnlocked=true;} [0,1,2,3,4].forEach(i=>document.getElementById('tab'+i).style.display=i==n?'block':'none');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');render()}
+function lockReports(){reportsUnlocked=false;alert("Dashboard, Broadsheet and Terminal Report locked. Password will be asked again.");showTab(1,document.querySelectorAll('.tabs button')[1]);}
+function optSelect(list,selected,idx,field){return `<select class="att" onchange="editAtt(${idx},'${field}',this.value)"><option value="">-- Select --</option>${list.map(o=>`<option ${o==selected?'selected':''}>${o}</option>`).join('')}</select>`}
+function uploadLogo(type,input){let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=function(e){logoStore[type]=e.target.result;localStorage.setItem('bomso_logos',JSON.stringify(logoStore));updateLogoStatus();renderReport();alert(type=='coat'?'Coat of Arms saved!':'School Logo saved!');};r.readAsDataURL(f);}
+function updateLogoStatus(){let c=document.getElementById('coatStatus');if(c)c.innerText=logoStore.coat?'✅ Uploaded':'Not uploaded yet';let l=document.getElementById('logoStatus');if(l)l.innerText=logoStore.logo?'✅ Uploaded':'Not uploaded yet';let tc=document.getElementById('topCoat');if(tc&&logoStore.coat){tc.src=logoStore.coat;tc.style.display='block';}let tl=document.getElementById('topLogo');if(tl&&logoStore.logo){tl.src=logoStore.logo;tl.style.display='block';}let lc=document.getElementById('loginCoat');if(lc&&logoStore.coat){lc.src=logoStore.coat;lc.style.display='inline-block';}let ll=document.getElementById('loginLogo');if(ll&&logoStore.logo){ll.src=logoStore.logo;ll.style.display='inline-block';}let wm=document.getElementById('watermarkImg');if(wm&&logoStore.logo){wm.src=logoStore.logo;wm.style.display='block';}let wmUrl=logoStore.logo||'bomso-logo.png';document.querySelectorAll('.report').forEach(r=>r.style.setProperty('--wm-url',`url("${wmUrl}")`));}
+function saveMeta(){metaStore.vac=document.getElementById('vacDate').value;metaStore.reopen=document.getElementById('reopenDate').value;metaStore.year=document.getElementById('repYear').value;metaStore.academicYear=metaStore.year;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ay=document.getElementById('academicYear');if(ay)ay.value=metaStore.year;renderReport();}
+function loadMeta(){if(metaStore.vac)document.getElementById('vacDate').value=metaStore.vac;if(metaStore.reopen)document.getElementById('reopenDate').value=metaStore.reopen;if(metaStore.year)document.getElementById('repYear').value=metaStore.year;if(metaStore.promo)document.getElementById('promoStatus').value=metaStore.promo;if(metaStore.tel)document.getElementById('headTel').value=metaStore.tel;}
+function exportBroadsheetCSV(){let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let rows=[['S#','NAME',...BROAD_SUBJECTS.flatMap(s=>[s.code+' MARK',s.code+' GRADE']),'TOTAL','AGGR','RawScore','POSITION']];names.forEach((name,i)=>{let sum=learnerSummary(cls,term,name);let flat=BROAD_SUBJECTS.map((s,j)=>[sum.marks[j]==null?'':sum.marks[j].toFixed(1),sum.grades[j]==null?'':sum.grades[j]]).flat();rows.push([i+1,name,...flat,sum.total.toFixed(1),sum.aggr,sum.raw.toFixed(1),getBroadPosition(cls,term,name)]);});let csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Broadsheet-${cls}-${term}.csv`;a.click();}
+function searchLearnerGlobal(){let q=(document.getElementById('globalSearch').value||'').trim().toLowerCase();let box=document.getElementById('globalResult');if(q.length<2){box.innerHTML='<span style="color:#888">Type at least 2 letters...</span>';return;}let term=document.getElementById('term').value;let found=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{if(d[1].toLowerCase().includes(q)){let s=learnerSummary(cls,term,d[1]);if(s.aggr>0)found.push({cls,name:d[1],...s,pos:getBroadPosition(cls,term,d[1])});}});});if(!found.length){box.innerHTML='No learner found with marks yet for '+term;return;}box.innerHTML=found.map(f=>`<div style="border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:8px"><b>${f.name}</b> - ${f.cls} - ${term} &nbsp; | &nbsp; AGGR: <b>${f.aggr}</b> &nbsp; | &nbsp; POSITION: <b>${f.pos}</b> &nbsp; | &nbsp; TOTAL: ${f.total.toFixed(1)} &nbsp; | &nbsp; AVG: ${f.raw.toFixed(1)}<br><button class="btn green" onclick="sendWhatsApp('${f.name.replace(/'/g,"")}','${f.cls}','${f.aggr}','${f.pos}','${f.total.toFixed(1)}')">💬 Send Result on WhatsApp</button></div>`).join('');}
+function sendWhatsApp(name,cls,aggr,pos,total){let term=document.getElementById('term').value;let year=document.getElementById('academicYear').value;let msg=`Hello, this is BOMSO M/A JHS.\n\n${name} - ${cls} - ${term} ${year}\nSCORE: ${total} / 1000\nBEST SIX AGGREGATE: ${aggr}\nPOSITION: ${pos}\n\nPlease contact the school for full Terminal Report.\nThank you.`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
+function sendWhatsAppCurrent(){let name=document.getElementById('repLearner').value;let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let s=learnerSummary(cls,term,name);sendWhatsApp(name,cls,s.aggr,getBroadPosition(cls,term,name),s.total.toFixed(1));}
+function renderDashboard(){let term=document.getElementById('term').value;let all=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{let s=learnerSummary(cls,term,d[1]);if(s.aggr>0)all.push({cls,name:d[1],...s});});});let totalLearners=DATA.length;let pass=all.filter(x=>x.aggr<=30).length;let pct=all.length?((pass/all.length)*100).toFixed(1):'0.0';document.getElementById('dashTotal').innerText=totalLearners;document.getElementById('dashClasses').innerText=classes.length;document.getElementById('dashPass').innerText=pct+'%';let sorted=[...all].sort((a,b)=>(a.aggr-b.aggr)||(b.raw-a.raw));document.getElementById('dashBestLearner').innerText=sorted.length?sorted[0].name+' ('+sorted[0].cls+' - '+sorted[0].aggr+')':'-';let byClass=classes.map(cls=>{let list=all.filter(x=>x.cls==cls);let p=list.filter(x=>x.aggr<=30).length;let pc=list.length?((p/list.length)*100):0;return {cls,total:DATA.filter(d=>d[0]==cls).length,withMarks:list.length,pass:p,pct:pc};});let bestClass=[...byClass].sort((a,b)=>b.pct-a.pct)[0];document.getElementById('dashBestClass').innerText=bestClass?bestClass.cls+' - '+bestClass.pct.toFixed(1)+'%':'-';document.getElementById('dashByClass').innerHTML=byClass.map(b=>`<div style="margin-bottom:10px"><b>${b.cls}</b> - ${b.pass}/${b.withMarks} passed - ${b.pct.toFixed(1)}%<div class="barChart"><div style="width:${b.pct}%"></div></div></div>`).join('');document.getElementById('dashTop10').innerHTML=sorted.slice(0,10).map((x,i)=>`<div style="padding:6px;border-bottom:1px solid #eee"><b>${i+1}.</b> ${x.name} - ${x.cls} - AGGR <b>${x.aggr}</b> - AVG ${x.raw.toFixed(1)} <button class="btn green" style="padding:4px 8px;font-size:11px" onclick="sendWhatsApp('${x.name.replace(/'/g,"")}','${x.cls}','${x.aggr}','${getBroadPosition(x.cls,term,x.name)}','${x.total.toFixed(1)}')">💬 WhatsApp</button></div>`).join('')||'No marks yet';let bd=document.getElementById('broadDate');if(bd)bd.innerText=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+function render(){
+  let rows=getRows();
+  let q=(document.getElementById('search').value||'').toLowerCase();
+  let filtered=rows.map((r,i)=>({...r,_idx:i})).filter(r=>r.name.toLowerCase().includes(q));
+  let calc=filtered.map(r=>{let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);let m50=ttl/2;let e50=(+r.exm||0)/2;let all=m50+e50;return {...r,ttl,m50,e50,all}});
+  let sorted=[...calc].sort((a,b)=>b.all-a.all);let posMap={};
+  sorted.forEach((r,i)=>{if(i>0&&r.all==sorted[i-1].all)posMap[r._idx]=posMap[sorted[i-1]._idx];else posMap[r._idx]=i+1});
+  document.getElementById('title').innerText='Total: '+rows.length+' '+document.getElementById('cls').value+' - '+document.getElementById('subj').value+' - '+document.getElementById('term').value;
+  document.getElementById('tbody').innerHTML=calc.map((r,idx)=>{
+    let g=grade(r.all);let pos=posMap[r._idx];let suffix2=pos==1?'st':pos==2?'nd':pos==3?'rd':'th';
+    return `<tr><td>${idx+1}</td><td class="name"><input class="nameIn" value="${r.name}" onchange="editName(${r._idx},this)"></td><td><select onchange="editSex(${r._idx},this.value)"><option ${r.sex=='M'?'selected':''}>M</option><option ${r.sex=='F'?'selected':''}>F</option></select></td>
+    <td><input class="cell" type="number" min="0" max="30" value="${r.ind}" oninput="edit(${r._idx},'ind',this)" onblur="render()"></td>
+    <td><input class="cell" type="number" min="0" max="20" value="${r.grp}" oninput="edit(${r._idx},'grp',this)" onblur="render()"></td>
+    <td><input class="cell" type="number" min="0" max="30" value="${r.cls}" oninput="edit(${r._idx},'cls',this)" onblur="render()"></td>
+    <td><input class="cell" type="number" min="0" max="20" value="${r.pro}" oninput="edit(${r._idx},'pro',this)" onblur="render()"></td>
+    <td id="ttl-${r._idx}">${r.ttl}</td><td id="m50-${r._idx}">${r.m50.toFixed(1)}</td>
+    <td><input class="cell" type="number" min="0" max="100" value="${r.exm}" oninput="edit(${r._idx},'exm',this)" onblur="render()"></td>
+    <td id="e50-${r._idx}">${r.e50.toFixed(1)}</td><td><b id="all-${r._idx}">${r.all.toFixed(1)}</b></td>
+    <td id="pos-${r._idx}">${pos}${suffix2}</td><td id="grade-${r._idx}">${g[0]}</td><td id="rem-${r._idx}">${g[1]}</td></tr>`}).join('');
+  let attRows=getAtt();
+  document.getElementById('attTitle').innerText=document.getElementById('cls').value+' - '+document.getElementById('term').value;
+  document.getElementById('attBody').innerHTML=attRows.map((r,i)=>`<tr><td>${i+1}</td><td class="name">${r.name}</td><td><input class="cell" style="width:70px" type="number" min="0" max="90" placeholder="e.g. 23" value="${r.att}" oninput="if(this.value>90)this.value=90;editAtt(${i},'att',this.value)"></td><td>${optSelect(OPTS.conduct,r.conduct,i,'conduct')}</td><td>${optSelect(OPTS.attitude,r.attitude,i,'attitude')}</td><td>${optSelect(OPTS.interest,r.interest,i,'interest')}</td><td>${optSelect(OPTS.remarks,r.remarks,i,'remarks')}</td></tr>`).join('');
+  let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;
+  let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);
+  document.getElementById('broadTitle').innerText=cls+' - '+term+' - Roll: '+names.length;
+  let broadData=names.map(name=>{
+    let marks=[];let grades=[];
+    BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,name);marks.push(m?m.total:null);grades.push(m?beceGrade(m.total):null);});
+    let validGrades=grades.filter(g=>g!=null).sort((a,b)=>a-b);
+    let best6=validGrades.slice(0,6);let aggr=best6.length?best6.reduce((a,b)=>a+b,0):0;
+    let validMarks=marks.filter(m=>m!=null);let raw=validMarks.length?validMarks.reduce((a,b)=>a+b,0)/validMarks.length:0;
+    return {name,marks,grades,aggr,raw,total:aggr};
+  });
+  let ranked=[...broadData].sort((a,b)=> (a.aggr-b.aggr) || (b.raw-a.raw));
+  let posMapB={}; ranked.forEach((r,i)=>{if(i>0&&r.aggr==ranked[i-1].aggr&&r.raw==ranked[i-1].raw)posMapB[r.name]=posMapB[ranked[i-1].name];else posMapB[r.name]=i+1;});
+  document.getElementById('broadBody').innerHTML=broadData.map((r,i)=>{
+    let cells=r.marks.map((m,j)=>{let g=r.grades[j];return `<td>${m==null?'-':m.toFixed(1)}</td><td class="gradeCell">${g==null?'-':g}</td>`}).join('');
+    return `<tr><td>${i+1}</td><td class="name">${r.name}</td>${cells}<td><b>${r.total}</b></td><td><b>${r.aggr}</b></td><td>${r.raw.toFixed(1)}</td><td><b>${posMapB[r.name]}</b></td></tr>`}).join('');
+  let passCount=broadData.filter(r=>r.aggr>0&&r.aggr<=30).length;
+  let pct=broadData.length?((passCount/broadData.length)*100).toFixed(1):'0.0';
+  document.getElementById('overallPass').innerText=`Overall % Pass by AGGR 30 or Better: ${pct}% (${passCount} / ${broadData.length})`;
+  document.getElementById('gradePassBody').innerHTML=BROAD_SUBJECTS.map(s=>{
+    let counts=[0,0,0,0,0,0,0,0,0];
+    broadData.forEach(r=>{let idx=BROAD_SUBJECTS.indexOf(s);let g=r.grades[idx];if(g!=null)counts[g-1]++;});
+    let pass=counts.slice(0,6).reduce((a,b)=>a+b,0);
+    return `<tr><td class="name">${s.full}</td>${counts.map(c=>`<td>${c}</td>`).join('')}<td><b>${pass}</b></td></tr>`}).join('');
+  let sel=document.getElementById('repLearner');if(sel.options.length==0||sel.dataset.cls!=cls){sel.dataset.cls=cls;sel.innerHTML=rows.map(r=>`<option>${r.name}</option>`).join('');}
+  loadMeta(); updateLogoStatus(); renderReport(); renderDashboard();
+}
+function buildOneReport(name){
+  let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let year=metaStore.year||document.getElementById('repYear').value||'2026/2027';
+  let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let rollNo=names.indexOf(name)+1;
+  let attRows=getAtt();let a=attRows.find(x=>x.name==name)||{};
+  let rowsHtml='';let totalScore=0;let allGrades=[];
+  let coreGrades=[];let otherGrades=[];
+  REP_SUBJECTS.forEach(sub=>{
+    let s=getScoreFor(cls,sub,term,name);
+    let c50=s?s.class50:0, e50=s?s.exam50:0, tot=s?s.total:0; totalScore+=tot;
+    let g=s?beceGrade(tot):null; if(g)allGrades.push(g);
+    let pos=getSubjectPosition(cls,sub,term,name);
+    rowsHtml+=`<tr><td style="text-align:left">${REP_LABEL[sub]}</td><td>${s?c50.toFixed(1):'0'}</td><td>${s?e50.toFixed(1):'0'}</td><td><b>${s?tot.toFixed(1):'0'}</b></td><td>${s?pos:'-'}</td><td>${g==null?'-':g}</td><td>${g==null?'-':gradeRemark(g)}</td></tr>`;
+    if(["English Language","Mathematics","Integrated Science","Social Studies"].includes(sub)){if(g)coreGrades.push(g);} else {if(g)otherGrades.push(g);}
+  });
+  let sortedGrades=[...allGrades].sort((a,b)=>a-b);let aggr=sortedGrades.slice(0,6).reduce((a,b)=>a+b,0);
+  let coreSum=coreGrades.reduce((a,b)=>a+b,0);let best2=[...otherGrades].sort((a,b)=>a-b).slice(0,2).reduce((a,b)=>a+b,0);
+  let corePlus2=coreGrades.length==4?coreSum+best2:'-';
+  let overallPos=getBroadPosition(cls,term,name);
+  let termLabel=document.getElementById('term').value;let termNum=termLabel.replace('Term ','');
+  let vac=metaStore.vac||'23RD JULY, 2026';let reopen=metaStore.reopen||'8TH SEPTEMBER, 2026';let promo=metaStore.promo||'PROMOTED TO BS8';let tel=metaStore.tel||'................';
+  let coatImg=logoStore.coat?`<img src="${logoStore.coat}">`:`<img src="ghana-coat.png" onerror="this.style.display='none'">`;
+  let schoolImg=logoStore.logo?`<img src="${logoStore.logo}">`:`<img src="bomso-logo.png" onerror="this.style.display='none'">`;
+  let wmUrl=logoStore.logo||'bomso-logo.png';
+  return `<div class="report" style="--wm-url:url('${wmUrl}')">
+  <div class="repHead">
+    <div>${coatImg}</div>
+    <div class="mid"><h2>GHANA EDUCATION SERVICE</h2><h3>BOMSO M/A JHS</h3><h4>OFORRIKROM-MUNICIPAL</h4><h5>STUDENT'S TERMINAL REPORT</h5></div>
+    <div>${schoolImg}</div>
+  </div>
+  <div class="repMeta"><table><tr><td>NAME OF STUDENT:</td><td style="border-bottom:1px solid #000"><b>${name}</b></td><td>CLASS:</td><td style="border-bottom:1px solid #000"><b>${cls}</b></td></tr>
+  <tr><td>TERM:</td><td style="border-bottom:1px solid #000"><b>${termNum}</b></td><td>YEAR:</td><td style="border-bottom:1px solid #000"><b>${year}</b></td></tr>
+  <tr><td>No. ON ROLL:</td><td style="border-bottom:1px solid #000"><b>${rollNo}</b></td><td>POSITION:</td><td style="border-bottom:1px solid #000"><b>${overallPos}</b></td></tr>
+  <tr><td>VACATION DATE:</td><td style="border-bottom:1px solid #000"><b>${vac}</b></td><td>RE-OPENING DATE:</td><td style="border-bottom:1px solid #000"><b>${reopen}</b></td></tr></table></div>
+  <table class="repTable"><tr><th style="text-align:left">SUBJECT</th><th>CLASS<br>50</th><th>EXAMS<br>50</th><th>TOTAL<br>100%</th><th>POSITION</th><th>GRADE</th><th>REMARKS</th></tr>${rowsHtml}</table>
+  <div class="repFoot"><table>
+  <tr><td>SCORE:</td><td>${totalScore.toFixed(1)} &nbsp; OUT OF 1000</td><td>ATTENDANCE:</td><td>${a.att||'____'}</td></tr>
+  <tr><td>BEST SIX SUBJECTS AGGREGATE:</td><td>${aggr}</td><td>INTEREST:</td><td>${(a.interest||'').toUpperCase()||'____'}</td></tr>
+  <tr><td>THE 4 CORE + 2 BEST SUBJECTS:</td><td>${corePlus2} &nbsp; out of ____</td><td>ATTITUDE:</td><td>${(a.attitude||'').toUpperCase()||'____'}</td></tr>
+  <tr><td colspan="4">Class Teacher's Remark : <b>${(a.remarks||'').toUpperCase()||'___________________________________________'}</b> &nbsp; &nbsp; HEADTEACHER'S SIGNATURE: ________________</td></tr>
+  </table></div>
+  <div class="repBottom"><div><b>${termLabel.toUpperCase()} ${year} REPORT</b><br>ANY ERASURE RENDER THIS INVALID</div><div><b>PROMOTION STATUS:</b> ${promo}</div><div><b>GRADE INTERPRETATION</b><br>1=HIGHEST &nbsp; 4=HIGH AVERAGE &nbsp; 7=LOW<br>2=HIGHER &nbsp; 5=AVERAGE &nbsp; 8=LOWER<br>3=HIGH &nbsp; 6=LOW AVERAGE &nbsp; 9=LOWEST</div><div><b>CLASS/FORM TEACHER'S TEL No.</b><br>${tel}</div></div>
+  <div style="text-align:right;margin-top:10px;font-size:11px;line-height:1.2"><b>HEADTEACHER</b><br>BOMSO M/A JHS<br>P. O. BOX 12852,<br>KUMASI<br>DATE: _______________</div>
+  </div>`;
+}
+function renderReport(){let name=document.getElementById('repLearner').value;if(!name){let rows=getRows();name=rows[0]?.name;}if(!name)return;document.getElementById('reportArea').innerHTML=buildOneReport(name);document.getElementById('printAllArea').innerHTML='';}
+function prevLearner(){let sel=document.getElementById('repLearner');if(sel.selectedIndex>0){sel.selectedIndex--;renderReport();}}
+function nextLearner(){let sel=document.getElementById('repLearner');if(sel.selectedIndex<sel.options.length-1){sel.selectedIndex++;renderReport();}}
+function printOne(){document.getElementById('printAllArea').innerHTML='';window.print();}
+function printAll(){let cls=document.getElementById('cls').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);document.getElementById('printAllArea').innerHTML='<div class="printAll">'+names.map(n=>buildOneReport(n)).join('')+'</div>';document.getElementById('reportArea').innerHTML='';setTimeout(()=>window.print(),300);}
+function edit(i,f,el){let max=MAX[f];let v=el.value;if(v===''||v==null){v='';}else{v=Number(v);if(v<0){v=0;el.value=0;}if(v>max){v=max;el.value=max;el.classList.add('over');setTimeout(()=>el.classList.remove('over'),600);}}let rows=getRows();rows[i][f]=v;localStorage.setItem('bomso_v2',JSON.stringify(store));let r=rows[i];let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);let m50=ttl/2;let e50=(+r.exm||0)/2;let all=m50+e50;let g=grade(all);let ttlEl=document.getElementById('ttl-'+i);if(ttlEl)ttlEl.innerText=ttl;let mEl=document.getElementById('m50-'+i);if(mEl)mEl.innerText=m50.toFixed(1);let eEl=document.getElementById('e50-'+i);if(eEl)eEl.innerText=e50.toFixed(1);let aEl=document.getElementById('all-'+i);if(aEl)aEl.innerText=all.toFixed(1);let gEl=document.getElementById('grade-'+i);if(gEl)gEl.innerText=g[0];let rEl=document.getElementById('rem-'+i);if(rEl)rEl.innerText=g[1];}
+function editAtt(i,f,v){let rows=getAtt();rows[i][f]=v;localStorage.setItem('bomso_att',JSON.stringify(attStore));}
+function editName(i,el){let rows=getRows();rows[i].name=el.value.toUpperCase();save(false);}
+function editSex(i,v){let rows=getRows();rows[i].sex=v;save(false);}
+function addLearner(){let rows=getRows();let n=prompt('Enter learner full name:');if(!n)return;let s=prompt('Sex M/F:','F');rows.push({name:n.toUpperCase(),sex:(s||'F').toUpperCase(),ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();}
+function save(show=true){localStorage.setItem('bomso_v2',JSON.stringify(store));localStorage.setItem('bomso_att',JSON.stringify(attStore));if(show)alert('Saved!');}
+function saveAttitude(){localStorage.setItem('bomso_att',JSON.stringify(attStore));alert('Attitude Saved for '+document.getElementById('cls').value+'!');}
+function syncNames(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();let old=store[k]||[];let map={};old.forEach(r=>map[r.name]=r);store[k]=list.map(d=>map[d[1]]||{name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();alert('Names synced from '+c);}
+let sel=document.getElementById('cls');sel.innerHTML=classes.map(c=>`<option>${c}</option>`).join('');buildAcademicYears();render();
+if(sessionStorage.getItem('bomso_loggedin')){document.getElementById('loginOverlay').style.display='none';}
+</script></body></html>
