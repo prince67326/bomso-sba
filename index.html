@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BOMSO M/A JHS - SBA SYSTEM</title>
+<title>BOMSO M/A JHS - SBA SYSTEM - INTERNET VERSION</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;font-family:Arial,sans-serif}body{margin:0;background:#f2f2f2;padding:12px}h1{color:#1a6b2e;margin:0;font-size:26px}h3{margin:4px 0 12px;color:#333;font-weight:400}
 #loginOverlay{position:fixed;inset:0;background:#0f3d1a;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -28,6 +30,7 @@ select.att{width:100%;min-width:130px;padding:7px;border:1px solid #ddd;border-r
 .repTable th,.repTable td{border:1px solid #000;padding:5px;font-size:13px;background:#fff;color:#000}.repTable th{background:#fff}.repFoot{border:1px solid #000;padding:6px;margin-top:6px;font-size:13px;font-weight:bold}.repFoot table{font-size:13px}.repFoot td,.repFoot th{border:0;text-align:left;background:#fff;padding:2px}
 .repBottom{display:flex;gap:0;border:1px solid #000;margin-top:6px;font-size:12px}.repBottom>div{flex:1;border-right:1px solid #000;padding:6px}.repBottom>div:last-child{border-right:0}
 .broadSign{display:flex;justify-content:space-between;gap:10px;margin-top:30px;font-size:13px;text-align:center}.broadSign div{flex:1}.broadSign .line{border-top:1px solid #000;margin-top:40px;padding-top:4px;font-weight:bold}
+#cloudStatus{font-size:12px;font-weight:bold;padding:6px 10px;border-radius:20px;background:#fff3cd;display:inline-block}
 @media print{
 .no-print,.tabs,.bar,#title,.formula,.btn,button,#loginOverlay,.dashGrid,.noPrintInBroad{display:none!important}
 body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -57,12 +60,11 @@ h1,h3{display:none!important}
 <p style="font-size:11px;color:#888;margin-top:12px">Only authorised teachers can access this system.</p>
 </div>
 </div>
-
 <div id="watermark"><img id="watermarkImg" src="bomso-logo.png" onerror="this.style.display='none'"></div>
 <div class="topHeader no-print">
 <div>
 <h1>BOMSO M/A JHS - SBA SYSTEM</h1>
-<h3>School Based Assessment Score Sheet - Academic Year: <select id="academicYear" onchange="changeAcademicYear()" style="font-weight:bold;color:#1a6b2e"></select></h3>
+<h3>School Based Assessment Score Sheet - Academic Year: <select id="academicYear" onchange="changeAcademicYear()" style="font-weight:bold;color:#1a6b2e"></select> &nbsp; <span id="cloudStatus">🟡 Connecting...</span></h3>
 </div>
 <div class="topLogos">
 <img id="topCoat" src="ghana-coat.png" onerror="this.style.display='none'" alt="Ghana Coat of Arms">
@@ -77,7 +79,6 @@ h1,h3{display:none!important}
 <button onclick="showTab(3,this)">3. Broadsheet Combined 🔒</button>
 <button onclick="showTab(4,this)">4. Terminal Report 🔒</button>
 </div>
-
 <div class="bar no-print">
 <label>Class: <select id="cls" onchange="render()"></select></label>
 <label>Subject: <select id="subj" onchange="render()"><option>English Language</option><option>Mathematics</option><option>Integrated Science</option><option>Social Studies</option><option>RME</option><option>Career Technology</option><option>Creative Arts</option><option>Computing</option><option>French</option><option>Asante Twi</option></select></label>
@@ -86,10 +87,10 @@ h1,h3{display:none!important}
 <button class="btn" onclick="addLearner()">+ Add Learner</button>
 <button class="btn" onclick="save()">Save</button>
 <button class="btn" onclick="syncNames()">Sync Names From Class</button>
+<button class="btn" onclick="cloudSave(true)">☁️ Sync Now</button>
 <button class="btn dark" onclick="window.print()">Print</button>
 </div>
 <div id="title" class="no-print" style="font-weight:bold;margin-bottom:8px"></div>
-
 <div id="tab0" style="display:none">
 <div class="dashGrid">
 <div class="dashCard"><b id="dashTotal">0</b><span>Total Learners</span></div>
@@ -98,27 +99,20 @@ h1,h3{display:none!important}
 <div class="dashCard"><b id="dashBestLearner" style="font-size:16px">-</b><span>Best Learner (Lowest AGGR)</span></div>
 <div class="dashCard"><b id="dashBestClass" style="font-size:16px">-</b><span>Best Class (Highest Pass %)</span></div>
 </div>
-<div class="card">
-<h3 style="margin:0 0 8px">🔍 Search Learner Across All Classes</h3>
-<input id="globalSearch" placeholder="Type learner name e.g. AMA..." style="width:100%;max-width:400px" oninput="searchLearnerGlobal()">
-<div id="globalResult" style="margin-top:10px"></div>
-</div>
+<div class="card"><h3 style="margin:0 0 8px">🔍 Search Learner Across All Classes</h3><input id="globalSearch" placeholder="Type learner name e.g. AMA..." style="width:100%;max-width:400px" oninput="searchLearnerGlobal()"><div id="globalResult" style="margin-top:10px"></div></div>
 <div class="card"><h3 style="margin:0 0 8px">📊 Pass % By Class</h3><div id="dashByClass"></div></div>
 <div class="card"><h3 style="margin:0 0 8px">🏆 Top 10 Learners - Whole School</h3><div id="dashTop10"></div></div>
 </div>
-
 <div id="tab1">
 <table><thead><tr><th>NO</th><th>NAME</th><th>SEX</th><th>IND 30</th><th>GRP 20</th><th>CLS 30</th><th>PRO 20</th><th>TTL 100</th><th>100s 50M</th><th>EXM 100</th><th>EXM 50%</th><th>ALL 100%</th><th>POS</th><th>GRADE</th><th>REMARKS</th></tr></thead><tbody id="tbody"></tbody></table>
 <button class="btn no-print" style="margin-top:10px" onclick="addLearner()">+ Add Learner</button>
 <div class="formula">REMARKS (by Grade): 1=Highest | 2=Higher | 3=High | 4=High Average | 5=Average | 6=Low Average | 7=Low | 8=Lower | 9=Lowest / Below &nbsp; | &nbsp; GRADE (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9</div>
 </div>
-
 <div id="tab2" style="display:none">
 <div class="bar no-print"><b>AttitudePlus - <span id="attTitle"></span></b> <button class="btn" onclick="saveAttitude()">Save Attitude</button> <button class="btn dark" onclick="window.print()">Print Attitude</button></div>
 <table><thead><tr><th>S#</th><th>NAMES OF PUPILS</th><th>ATTENDANCE</th><th>CONDUCT</th><th>ATTITUDE</th><th>INTEREST</th><th>CLASS TRS RMKS</th></tr></thead><tbody id="attBody"></tbody></table>
 <div class="formula">Teacher's Remarks stay as before.</div>
 </div>
-
 <div id="tab3" style="display:none">
 <div class="card">
 <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><b id="broadTitle"></b> <span id="broadTopButtons" class="no-print"><button class="btn red" onclick="lockReports()">🔒 Lock Reports</button> <button class="btn" onclick="exportBroadsheetCSV()">⬇ Download Excel</button> <button class="btn" onclick="window.print()">Print Broadsheet</button></span></div>
@@ -133,7 +127,6 @@ h1,h3{display:none!important}
 <div class="formula">Grading (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9 | AGGR = Sum of Best 6 Grades | Names stay in class-list order</div>
 </div>
 </div>
-
 <div id="tab4" style="display:none">
 <div class="card no-print">
 <label>Select Learner: <select id="repLearner" onchange="renderReport()"></select></label>
@@ -151,11 +144,59 @@ h1,h3{display:none!important}
 </div>
 </div>
 <div id="reportArea"></div><div id="printAllArea"></div></div>
-
 <script>
+// ========= YOUR REAL FIREBASE CONFIG - ALREADY FILLED IN =========
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA6ogavkh0FzDVh3-x9tNzgfKPeoakpwN4",
+  authDomain: "bomso-sba.firebaseapp.com",
+  databaseURL: "https://bomso-sba-default-rtdb.firebaseio.com",
+  projectId: "bomso-sba",
+  storageBucket: "bomso-sba.firebasestorage.app",
+  messagingSenderId: "521096694994",
+  appId: "1:521096694994:web:affa152054ce6bbc9f310b"
+};
+// ============================================================
 const REPORT_PASS="Bomso124";
 const LOGIN_PASS="Bomso124";
 let reportsUnlocked=false;
+let cloudDB=null, cloudReady=false, isApplyingCloud=false, cloudTimer=null;
+function initCloud(){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    cloudDB=firebase.database();
+    cloudReady=true;
+    document.getElementById('cloudStatus').innerText="🟢 Internet Sync ON";
+    document.getElementById('cloudStatus').style.background="#d4edda";
+    cloudDB.ref('bomso-sba-v1').on('value', (snap)=>{
+      let d=snap.val(); if(!d) return;
+      if(isApplyingCloud) return;
+      let cloudStr=JSON.stringify(d);
+      let localStr=JSON.stringify({store,attStore,metaStore,logoStore});
+      if(cloudStr===localStr) return;
+      isApplyingCloud=true;
+      if(d.store) store=d.store; if(d.attStore) attStore=d.attStore; if(d.metaStore) metaStore=d.metaStore; if(d.logoStore) logoStore=d.logoStore;
+      localStorage.setItem('bomso_v2',JSON.stringify(store));
+      localStorage.setItem('bomso_att',JSON.stringify(attStore));
+      localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
+      localStorage.setItem('bomso_logos',JSON.stringify(logoStore));
+      render();
+      setTimeout(()=>{isApplyingCloud=false;},500);
+    });
+  }catch(e){ console.log("Cloud error",e); document.getElementById('cloudStatus').innerText="🔴 Cloud Error - Check Config"; }
+}
+function cloudSave(showMsg){
+  localStorage.setItem('bomso_v2',JSON.stringify(store));
+  localStorage.setItem('bomso_att',JSON.stringify(attStore));
+  localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
+  localStorage.setItem('bomso_logos',JSON.stringify(logoStore));
+  if(!cloudReady) { if(showMsg) alert('Saved locally. Cloud not ready.'); return; }
+  isApplyingCloud=true;
+  cloudDB.ref('bomso-sba-v1').set({store,attStore,metaStore,logoStore, updatedAt: Date.now()}).then(()=>{
+    document.getElementById('cloudStatus').innerText="🟢 Synced - "+new Date().toLocaleTimeString();
+    if(showMsg) alert('☁️ Synced to internet! Other phones will see it now.');
+    setTimeout(()=>{isApplyingCloud=false;},500);
+  }).catch(err=>{ isApplyingCloud=false; if(showMsg) alert('Sync failed: '+err.message); });
+}
 function doLogin(){let email=document.getElementById('loginEmail').value.trim();let pass=document.getElementById('loginPass').value;let err=document.getElementById('loginError');let emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);if(!email){err.innerText='Please enter your email address.';return;}if(!emailOk){err.innerText='Please enter a valid email e.g. teacher@bomso.edu.gh';return;}if(!pass){err.innerText='Please enter password.';return;}if(pass!==LOGIN_PASS){err.innerText='Wrong password! Access denied.';return;}err.innerText='';document.getElementById('loginOverlay').style.display='none';sessionStorage.setItem('bomso_loggedin',email);}
 function logoutSystem(){sessionStorage.removeItem('bomso_loggedin');document.getElementById('loginPass').value='';document.getElementById('loginError').innerText='You have logged out.';document.getElementById('loginOverlay').style.display='flex';}
 const DATA=[
@@ -176,18 +217,7 @@ let metaStore=JSON.parse(localStorage.getItem('bomso_meta')||'{}');
 let logoStore=JSON.parse(localStorage.getItem('bomso_logos')||'{}');
 const MAX={ind:30,grp:20,cls:30,pro:20,exm:100};
 const OPTS={conduct:["","Excellent","Very Good","Good","Fair","Poor","Needs Improvement"],attitude:["","Excellent","Very Good","Good","Fair","Poor","Positive","Respectful","Cooperative"],interest:["","Reading","Mathematics","Science","English","Football","Sports","Music","Drawing","Dancing","Computing","Art","Farming","Cooking"],remarks:["","Excellent performance","Very Good","Good","Keep it up","Satisfactory","Needs Improvement","Can do better","Work harder","Promoted","Excellent - Keep it up"]};
-const BROAD_SUBJECTS=[
-{code:"ENG",full:"English Language"},
-{code:"MATH",full:"Mathematics"},
-{code:"SOC",full:"Social Studies"},
-{code:"SCI",full:"Integrated Science"},
-{code:"GH LANG",full:"Asante Twi"},
-{code:"RME",full:"RME"},
-{code:"ICT",full:"Computing"},
-{code:"FREN",full:"French"},
-{code:"CAD",full:"Creative Arts"},
-{code:"C&T",full:"Career Technology"}
-];
+const BROAD_SUBJECTS=[{code:"ENG",full:"English Language"},{code:"MATH",full:"Mathematics"},{code:"SOC",full:"Social Studies"},{code:"SCI",full:"Integrated Science"},{code:"GH LANG",full:"Asante Twi"},{code:"RME",full:"RME"},{code:"ICT",full:"Computing"},{code:"FREN",full:"French"},{code:"CAD",full:"Creative Arts"},{code:"C&T",full:"Career Technology"}];
 const REP_SUBJECTS=["English Language","Mathematics","Integrated Science","Creative Arts","Computing","RME","Asante Twi","Social Studies","French","Career Technology"];
 const REP_LABEL={ "English Language":"English Language","Mathematics":"Mathematics","Integrated Science":"Science","Creative Arts":"Creative Art","Computing":"Computing","RME":"Religious and Moral","Asante Twi":"Ghanaian Language","Social Studies":"Social Studies","French":"French","Career Technology":"Career Technology"};
 function beceGrade(m){if(m==null||m===''||isNaN(m))return null; m=+m; if(m>=90)return 1; if(m>=80)return 2; if(m>=70)return 3; if(m>=60)return 4; if(m>=55)return 5; if(m>=50)return 6; if(m>=40)return 7; if(m>=35)return 8; return 9;}
@@ -195,7 +225,7 @@ function gradeRemark(g){return {1:'HIGHEST',2:'HIGHER',3:'HIGH',4:'HIGH AVERAGE'
 function grade(s){let g=beceGrade(s);return [g==null?'-':g, gradeRemark(g)];}
 function suffix(n){if(n==1)return '1st';if(n==2)return '2nd';if(n==3)return '3rd';return n+'th';}
 function buildAcademicYears(){let sel=document.getElementById('academicYear');let opts=[];for(let i=0;i<20;i++){let y=2026+i;opts.push(`<option>${y}/${y+1}</option>`);}sel.innerHTML=opts.join('');let saved=metaStore.academicYear||metaStore.year||'2026/2027';if(opts.some(o=>o.includes(saved)))sel.value=saved;else sel.value='2026/2027';}
-function changeAcademicYear(){let v=document.getElementById('academicYear').value;metaStore.academicYear=v;metaStore.year=v;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ry=document.getElementById('repYear');if(ry)ry.value=v;renderReport();}
+function changeAcademicYear(){let v=document.getElementById('academicYear').value;metaStore.academicYear=v;metaStore.year=v;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ry=document.getElementById('repYear');if(ry)ry.value=v;renderReport();cloudSave(false);}
 function attKey(){return document.getElementById('cls').value+'|'+document.getElementById('term').value}
 function getAtt(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=attKey();if(!attStore[k]){attStore[k]=list.map(d=>({name:d[1],att:'',conduct:'',attitude:'',interest:'',remarks:''}))}return attStore[k]}
 function key(){return document.getElementById('cls').value+'|'+document.getElementById('subj').value+'|'+document.getElementById('term').value}
@@ -207,9 +237,9 @@ function learnerSummary(cls,term,name){let marks=[];let grades=[];BROAD_SUBJECTS
 function showTab(n,el){if((n==0||n==3||n==4)&&!reportsUnlocked){let p=prompt("🔒 This section is protected.\nEnter password to view Dashboard / Broadsheet / Terminal Report:");if(p!==REPORT_PASS){alert("Wrong password! Access denied.");return;}reportsUnlocked=true;} [0,1,2,3,4].forEach(i=>document.getElementById('tab'+i).style.display=i==n?'block':'none');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');render()}
 function lockReports(){reportsUnlocked=false;alert("Dashboard, Broadsheet and Terminal Report locked. Password will be asked again.");showTab(1,document.querySelectorAll('.tabs button')[1]);}
 function optSelect(list,selected,idx,field){return `<select class="att" onchange="editAtt(${idx},'${field}',this.value)"><option value="">-- Select --</option>${list.map(o=>`<option ${o==selected?'selected':''}>${o}</option>`).join('')}</select>`}
-function uploadLogo(type,input){let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=function(e){logoStore[type]=e.target.result;localStorage.setItem('bomso_logos',JSON.stringify(logoStore));updateLogoStatus();renderReport();alert(type=='coat'?'Coat of Arms saved!':'School Logo saved!');};r.readAsDataURL(f);}
+function uploadLogo(type,input){let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=function(e){logoStore[type]=e.target.result;localStorage.setItem('bomso_logos',JSON.stringify(logoStore));updateLogoStatus();renderReport();cloudSave(false);alert(type=='coat'?'Coat of Arms saved!':'School Logo saved!');};r.readAsDataURL(f);}
 function updateLogoStatus(){let c=document.getElementById('coatStatus');if(c)c.innerText=logoStore.coat?'✅ Uploaded':'Not uploaded yet';let l=document.getElementById('logoStatus');if(l)l.innerText=logoStore.logo?'✅ Uploaded':'Not uploaded yet';let tc=document.getElementById('topCoat');if(tc&&logoStore.coat){tc.src=logoStore.coat;tc.style.display='block';}let tl=document.getElementById('topLogo');if(tl&&logoStore.logo){tl.src=logoStore.logo;tl.style.display='block';}let lc=document.getElementById('loginCoat');if(lc&&logoStore.coat){lc.src=logoStore.coat;lc.style.display='inline-block';}let ll=document.getElementById('loginLogo');if(ll&&logoStore.logo){ll.src=logoStore.logo;ll.style.display='inline-block';}let wm=document.getElementById('watermarkImg');if(wm&&logoStore.logo){wm.src=logoStore.logo;wm.style.display='block';}let wmUrl=logoStore.logo||'bomso-logo.png';document.querySelectorAll('.report').forEach(r=>r.style.setProperty('--wm-url',`url("${wmUrl}")`));}
-function saveMeta(){metaStore.vac=document.getElementById('vacDate').value;metaStore.reopen=document.getElementById('reopenDate').value;metaStore.year=document.getElementById('repYear').value;metaStore.academicYear=metaStore.year;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ay=document.getElementById('academicYear');if(ay)ay.value=metaStore.year;renderReport();}
+function saveMeta(){metaStore.vac=document.getElementById('vacDate').value;metaStore.reopen=document.getElementById('reopenDate').value;metaStore.year=document.getElementById('repYear').value;metaStore.academicYear=metaStore.year;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ay=document.getElementById('academicYear');if(ay)ay.value=metaStore.year;renderReport();cloudSave(false);}
 function loadMeta(){if(metaStore.vac)document.getElementById('vacDate').value=metaStore.vac;if(metaStore.reopen)document.getElementById('reopenDate').value=metaStore.reopen;if(metaStore.year)document.getElementById('repYear').value=metaStore.year;if(metaStore.promo)document.getElementById('promoStatus').value=metaStore.promo;if(metaStore.tel)document.getElementById('headTel').value=metaStore.tel;}
 function exportBroadsheetCSV(){let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let rows=[['S#','NAME',...BROAD_SUBJECTS.flatMap(s=>[s.code+' MARK',s.code+' GRADE']),'TOTAL','AGGR','RawScore','POSITION']];names.forEach((name,i)=>{let sum=learnerSummary(cls,term,name);let flat=BROAD_SUBJECTS.map((s,j)=>[sum.marks[j]==null?'':sum.marks[j].toFixed(1),sum.grades[j]==null?'':sum.grades[j]]).flat();rows.push([i+1,name,...flat,sum.total.toFixed(1),sum.aggr,sum.raw.toFixed(1),getBroadPosition(cls,term,name)]);});let csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Broadsheet-${cls}-${term}.csv`;a.click();}
 function searchLearnerGlobal(){let q=(document.getElementById('globalSearch').value||'').trim().toLowerCase();let box=document.getElementById('globalResult');if(q.length<2){box.innerHTML='<span style="color:#888">Type at least 2 letters...</span>';return;}let term=document.getElementById('term').value;let found=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{if(d[1].toLowerCase().includes(q)){let s=learnerSummary(cls,term,d[1]);if(s.aggr>0)found.push({cls,name:d[1],...s,pos:getBroadPosition(cls,term,d[1])});}});});if(!found.length){box.innerHTML='No learner found with marks yet for '+term;return;}box.innerHTML=found.map(f=>`<div style="border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:8px"><b>${f.name}</b> - ${f.cls} - ${term} &nbsp; | &nbsp; AGGR: <b>${f.aggr}</b> &nbsp; | &nbsp; POSITION: <b>${f.pos}</b> &nbsp; | &nbsp; TOTAL: ${f.total.toFixed(1)} &nbsp; | &nbsp; AVG: ${f.raw.toFixed(1)}<br><button class="btn green" onclick="sendWhatsApp('${f.name.replace(/'/g,"")}','${f.cls}','${f.aggr}','${f.pos}','${f.total.toFixed(1)}')">💬 Send Result on WhatsApp</button></div>`).join('');}
@@ -315,13 +345,13 @@ function nextLearner(){let sel=document.getElementById('repLearner');if(sel.sele
 function printOne(){document.getElementById('printAllArea').innerHTML='';window.print();}
 function printAll(){let cls=document.getElementById('cls').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);document.getElementById('printAllArea').innerHTML='<div class="printAll">'+names.map(n=>buildOneReport(n)).join('')+'</div>';document.getElementById('reportArea').innerHTML='';setTimeout(()=>window.print(),300);}
 function edit(i,f,el){let max=MAX[f];let v=el.value;if(v===''||v==null){v='';}else{v=Number(v);if(v<0){v=0;el.value=0;}if(v>max){v=max;el.value=max;el.classList.add('over');setTimeout(()=>el.classList.remove('over'),600);}}let rows=getRows();rows[i][f]=v;localStorage.setItem('bomso_v2',JSON.stringify(store));let r=rows[i];let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);let m50=ttl/2;let e50=(+r.exm||0)/2;let all=m50+e50;let g=grade(all);let ttlEl=document.getElementById('ttl-'+i);if(ttlEl)ttlEl.innerText=ttl;let mEl=document.getElementById('m50-'+i);if(mEl)mEl.innerText=m50.toFixed(1);let eEl=document.getElementById('e50-'+i);if(eEl)eEl.innerText=e50.toFixed(1);let aEl=document.getElementById('all-'+i);if(aEl)aEl.innerText=all.toFixed(1);let gEl=document.getElementById('grade-'+i);if(gEl)gEl.innerText=g[0];let rEl=document.getElementById('rem-'+i);if(rEl)rEl.innerText=g[1];}
-function editAtt(i,f,v){let rows=getAtt();rows[i][f]=v;localStorage.setItem('bomso_att',JSON.stringify(attStore));}
+function editAtt(i,f,v){let rows=getAtt();rows[i][f]=v;localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);}
 function editName(i,el){let rows=getRows();rows[i].name=el.value.toUpperCase();save(false);}
 function editSex(i,v){let rows=getRows();rows[i].sex=v;save(false);}
 function addLearner(){let rows=getRows();let n=prompt('Enter learner full name:');if(!n)return;let s=prompt('Sex M/F:','F');rows.push({name:n.toUpperCase(),sex:(s||'F').toUpperCase(),ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();}
-function save(show=true){localStorage.setItem('bomso_v2',JSON.stringify(store));localStorage.setItem('bomso_att',JSON.stringify(attStore));if(show)alert('Saved!');}
-function saveAttitude(){localStorage.setItem('bomso_att',JSON.stringify(attStore));alert('Attitude Saved for '+document.getElementById('cls').value+'!');}
+function save(show=true){cloudSave(show);}
+function saveAttitude(){localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);alert('Attitude Saved for '+document.getElementById('cls').value+'!');}
 function syncNames(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();let old=store[k]||[];let map={};old.forEach(r=>map[r.name]=r);store[k]=list.map(d=>map[d[1]]||{name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();alert('Names synced from '+c);}
-let sel=document.getElementById('cls');sel.innerHTML=classes.map(c=>`<option>${c}</option>`).join('');buildAcademicYears();render();
+let sel=document.getElementById('cls');sel.innerHTML=classes.map(c=>`<option>${c}</option>`).join('');buildAcademicYears();initCloud();render();
 if(sessionStorage.getItem('bomso_loggedin')){document.getElementById('loginOverlay').style.display='none';}
 </script></body></html>
