@@ -1,357 +1,661 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BOMSO M/A JHS - SBA SYSTEM - INTERNET VERSION</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<title>BOMSO M/A JHS - SBA SYSTEM</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}body{margin:0;background:#f2f2f2;padding:12px}h1{color:#1a6b2e;margin:0;font-size:26px}h3{margin:4px 0 12px;color:#333;font-weight:400}
-#loginOverlay{position:fixed;inset:0;background:#0f3d1a;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
-.loginBox{background:#fff;width:100%;max-width:420px;border-radius:14px;padding:24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.loginBox img{width:90px;height:90px;object-fit:contain;margin:4px}
-.loginBox h2{margin:6px 0 2px;color:#1a6b2e;font-size:22px}.loginBox p{margin:0 0 14px;color:#555;font-size:13px}
-.loginBox label{display:block;text-align:left;font-weight:bold;font-size:13px;margin:10px 0 4px}
-.loginBox input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px}
-.loginBtn{width:100%;background:#1a6b2e;color:#fff;border:0;padding:13px;border-radius:8px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:16px}
-.loginBtn:hover{background:#0f3d1a}#loginError{color:#c0392b;font-weight:bold;font-size:13px;min-height:18px;margin-top:10px}
-.topHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.topLogos{display:flex;gap:10px;align-items:center;flex-shrink:0}
-.topLogos img{width:72px;height:72px;object-fit:contain;background:#fff;border-radius:8px;padding:4px;border:1px solid #ddd}
-#watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.07}
-#watermark img{width:520px;height:520px;object-fit:contain}
+*{box-sizing:border-box;font-family:Arial,sans-serif}body{margin:0;padding:12px;background-image:url('bomso-logo.png');background-size:650px;background-repeat:no-repeat;background-position:center center;background-attachment:fixed;background-color:#eef3ef}h1{color:#1a6b2e;margin:0;font-size:26px}h3{margin:4px 0 12px;color:#333;font-weight:400}
+body::before{content:"";position:fixed;top:50%;left:50%;width:700px;height:700px;transform:translate(-50%,-50%);background-image:url('bomso-logo.png');background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.22;pointer-events:none;z-index:0}
 body>*{position:relative;z-index:1}
+.topHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.topLogos{display:flex;gap:10px;align-items:center}.topLogos img{width:72px;height:72px;object-fit:contain;background:#fff;border-radius:8px;padding:4px;border:1px solid #ddd}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tabs button{background:#1a6b2e;color:#fff;border:0;padding:10px 14px;border-radius:6px;cursor:pointer;font-weight:bold}.tabs button.active{background:#0f3d1a}
-.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;padding:10px;border-radius:8px;margin-bottom:10px}select,input{padding:8px;border:1px solid #ccc;border-radius:6px}.btn{background:#1a6b2e;color:#fff;border:0;padding:9px 14px;border-radius:6px;cursor:pointer;font-weight:bold}.btn.dark{background:#222}.btn.orange{background:#e67e22}.btn.red{background:#c0392b}.btn.green{background:#25D366;color:#000}
-table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}th{background:#1a7a33;color:#fff;padding:6px;position:sticky;top:0}td{border:1px solid #ddd;padding:4px;text-align:center}td.name{text-align:left;font-weight:600}input.cell{width:52px;padding:5px;text-align:center;border:1px solid #ddd;border-radius:4px}input.cell.over{border:2px solid red;background:#ffe0e0}input.nameIn{width:100%;min-width:180px;padding:5px}
-select.att{width:100%;min-width:130px;padding:7px;border:1px solid #ddd;border-radius:4px;background:#fff}.formula{background:#fff3cd;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold;font-size:13px}
-.card{background:#fff;padding:14px;border-radius:10px;margin-bottom:10px}.report{border:2px solid #000;padding:10px;background:#fff;font-family:"Times New Roman",Times,serif;color:#000;position:relative;overflow:hidden}.report::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;height:420px;background-image:var(--wm-url);background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.08;pointer-events:none}.broadWrap{overflow-x:auto;background:#fff}.broadWrap table{min-width:1100px}.gradeCell{font-weight:bold;background:#f0f8f0}.passBox{font-weight:bold;margin:10px 0}
-.dashGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px}.dashCard{background:#fff;border-radius:10px;padding:14px;text-align:center;border-top:5px solid #1a6b2e}.dashCard b{font-size:28px;color:#1a6b2e;display:block}.dashCard span{font-size:12px;color:#555}.barChart{height:18px;background:#e0e0e0;border-radius:10px;overflow:hidden}.barChart div{height:100%;background:#1a6b2e}
-.repHead{display:flex;justify-content:space-between;align-items:flex-start;text-align:center}.repHead img{width:85px;height:85px;object-fit:contain}.repHead .mid{flex:1}.repHead h2{margin:0;font-size:20px;letter-spacing:1px}.repHead h3{margin:0;font-size:18px}.repHead h4{margin:2px 0;font-size:16px}.repHead h5{margin:2px 0;font-size:15px;text-decoration:underline}
-.repMeta{border:1px solid #000;margin:8px 0;padding:6px;font-size:13px;font-weight:bold}.repMeta table{font-size:13px}.repMeta td,.repMeta th{border:0;text-align:left;padding:2px 4px;background:#fff}
-.repTable th,.repTable td{border:1px solid #000;padding:5px;font-size:13px;background:#fff;color:#000}.repTable th{background:#fff}.repFoot{border:1px solid #000;padding:6px;margin-top:6px;font-size:13px;font-weight:bold}.repFoot table{font-size:13px}.repFoot td,.repFoot th{border:0;text-align:left;background:#fff;padding:2px}
-.repBottom{display:flex;gap:0;border:1px solid #000;margin-top:6px;font-size:12px}.repBottom>div{flex:1;border-right:1px solid #000;padding:6px}.repBottom>div:last-child{border-right:0}
-.broadSign{display:flex;justify-content:space-between;gap:10px;margin-top:30px;font-size:13px;text-align:center}.broadSign div{flex:1}.broadSign .line{border-top:1px solid #000;margin-top:40px;padding-top:4px;font-weight:bold}
-#cloudStatus{font-size:12px;font-weight:bold;padding:6px 10px;border-radius:20px;background:#fff3cd;display:inline-block}
-@media print{
-.no-print,.tabs,.bar,#title,.formula,.btn,button,#loginOverlay,.dashGrid,.noPrintInBroad{display:none!important}
-body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-h1,h3{display:none!important}
-.topHeader{display:flex!important}
-.topHeader h1,.topHeader h3{display:block!important}
-.card{padding:0}
-.report{border:2px solid #000;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.printAll .report{page-break-after:always}
-#gradePassSection,#overallPass,#broadTopButtons,#broadButtons{display:none!important;visibility:hidden!important;height:0!important}
-#broadTitle{font-size:16px}
-#watermark{opacity:.07!important;display:block!important}
-.broadSign{display:flex!important}
-}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;padding:10px;border-radius:8px;margin-bottom:10px}select,input{padding:8px;border:1px solid #ccc;border-radius:6px}.btn{background:#1a6b2e;color:#fff;border:0;padding:9px 14px;border-radius:6px;cursor:pointer;font-weight:bold}.btn.dark{background:#222}.btn.orange{background:#e67e22}.btn.red{background:#c0392b}.btn.green{background:#25D366;color:#000}.btn.blue{background:#007bff}.btn.small{padding:4px 8px;font-size:11px}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:12px}th{background:#1a7a33;color:#fff;padding:6px}td{border:1px solid #ddd;padding:4px;text-align:center}td.name{text-align:left;font-weight:600}input.cell{width:52px;padding:5px;text-align:center}input.nameIn{width:100%;min-width:180px;padding:5px}select.attSel{width:100%;max-width:280px;padding:6px;font-size:11px;text-align:left;white-space:normal}
+.card{background:#fff;padding:14px;border-radius:10px;margin-bottom:10px}.formula{background:#fff3cd;padding:10px;border-radius:8px;margin-top:10px;font-weight:bold;font-size:13px}#cloudStatus{font-size:12px;font-weight:bold;padding:6px 10px;border-radius:20px;background:#fff3cd}
+.dashCards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.dashCard{flex:1;min-width:150px;background:#fff;border-radius:10px;padding:14px;text-align:center;border-top:4px solid #1a7a33}.dashCard b{font-size:28px;color:#1a7a33;display:block}.dashCard span{font-size:12px;color:#666}.passBar{height:14px;background:#e9ecef;border-radius:10px;overflow:hidden;margin:4px 0 12px}.passBar div{height:100%;background:#4caf7d}
+.rep{border:2px solid #000;background:#fff;padding:10px;margin:0 0 12px;font-size:13px;color:#000}#reportArea,#printAllArea{margin:0;padding:0;background:#fff}.repHead{display:flex;justify-content:space-between;align-items:flex-start}.repHead img{width:85px;height:85px;object-fit:contain}.repHead h2{margin:0;font-size:22px;text-align:center}.repHead h3{margin:0;font-size:18px;text-align:center;color:#000}.repHead h4{margin:2px 0 0;text-align:center;font-size:14px}.repInfo{border:1px solid #000;display:flex;margin:8px 0}.repInfo>div{flex:1;padding:6px}.repInfo table{font-size:12px}.repInfo td{border:none;padding:2px 4px;text-align:left}.repInfo td:first-child{font-weight:bold;white-space:nowrap}.repTable th{background:#fff;color:#000;border:1px solid #000;font-size:12px}.repTable td{border:1px solid #000;padding:4px}
+.repBottom{border:1px solid #000;display:flex;margin-top:8px;font-size:12px;line-height:1.9}.repBottom .left{flex:2;padding:6px 8px}.repBottom .right{flex:1;padding:6px 8px;border-left:1px solid #000}.repBottom .remarkRow{border-top:1px solid #000;margin-top:4px;padding-top:4px;line-height:1.6}
+.repFooter{display:flex;gap:6px;margin-top:8px}.repFooter>div{flex:1;border:1px solid #000;padding:6px;font-size:10px;line-height:1.5;text-align:center}.repFooter b{display:block;font-size:11px}.gradeGrid{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:left;font-size:10px}.blankRow{background:#fffbe6}.blankRow td{color:#888}
+#archiveBanner{display:none;background:#c0392b;color:#fff;padding:12px;border-radius:8px;margin-bottom:10px;font-weight:bold;text-align:center}
+#loginScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:#eaf5ec;background-image:url('bomso-logo.png');background-size:520px;background-repeat:no-repeat;background-position:center;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+#loginScreen::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(234,245,236,0.82)}
+.loginBox{position:relative;background:#fff;border-radius:14px;padding:22px;width:100%;max-width:460px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.2);border-top:6px solid #1a6b2e}
+.loginLogos{display:flex;justify-content:space-between;align-items:center}.loginLogos img{width:90px;height:90px;object-fit:contain}.loginBox h2{margin:8px 0 2px;color:#1a6b2e;font-size:24px}.loginBox h4{margin:0 0 14px;color:#333}.loginBox input{width:100%;padding:11px;margin:6px 0;font-size:15px}.loginBox .btn{width:100%;padding:12px;font-size:16px;margin-top:8px}.loginHint{font-size:12px;color:#666;margin-top:10px}
+@media print{body{padding:0;background:#fff}body::before{display:none}.topHeader,.tabs,.bar,#title,.no-print{display:none!important}#archiveBanner{display:none!important}#loginScreen{display:none!important}#tab0,#tab1,#tab2,#tab5{display:none!important}body.printing-broadsheet #tab4{display:none!important}body.printing-broadsheet #tab3{display:block!important}body.printing-report #tab3{display:none!important}body.printing-report #tab4{display:block!important}body:not(.printing-broadsheet):not(.printing-report) #tab3,body:not(.printing-broadsheet):not(.printing-report) #tab4{display:none!important}#tab3 .broadControls{display:none!important}#tab4 .reportControls{display:none!important}.card{border:none;padding:0;margin:0}.rep{border:2px solid #000;break-after:page;margin:0}.rep:last-child{break-after:auto}table{font-size:10px}@page{size:portrait;margin:8mm}body.printing-broadsheet @page{size:landscape;margin:8mm}}
 </style></head><body>
-<div id="loginOverlay">
-<div class="loginBox">
-<div><img id="loginCoat" src="ghana-coat.png" onerror="this.style.display='none'"><img id="loginLogo" src="bomso-logo.png" onerror="this.style.display='none'"></div>
-<h2>BOMSO M/A JHS</h2>
-<p>School Based Assessment System<br>Please login to continue</p>
-<label>Email Address</label>
-<input id="loginEmail" type="email" placeholder="e.g. teacher@bomso.edu.gh" autocomplete="email">
-<label>Password</label>
-<input id="loginPass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
-<button class="loginBtn" onclick="doLogin()">🔓 LOGIN</button>
-<div id="loginError"></div>
-<p style="font-size:11px;color:#888;margin-top:12px">Only authorised teachers can access this system.</p>
-</div>
-</div>
-<div id="watermark"><img id="watermarkImg" src="bomso-logo.png" onerror="this.style.display='none'"></div>
-<div class="topHeader no-print">
-<div>
-<h1>BOMSO M/A JHS - SBA SYSTEM</h1>
-<h3>School Based Assessment Score Sheet - Academic Year: <select id="academicYear" onchange="changeAcademicYear()" style="font-weight:bold;color:#1a6b2e"></select> &nbsp; <span id="cloudStatus">🟡 Connecting...</span></h3>
-</div>
-<div class="topLogos">
-<img id="topCoat" src="ghana-coat.png" onerror="this.style.display='none'" alt="Ghana Coat of Arms">
-<img id="topLogo" src="bomso-logo.png" onerror="this.style.display='none'" alt="Bomso Logo">
-<button class="btn red" onclick="logoutSystem()" style="margin-left:6px">Logout</button>
-</div>
-</div>
-<div class="tabs no-print">
-<button onclick="showTab(0,this)">0. Dashboard 📊 🔒</button>
-<button class="active" onclick="showTab(1,this)">1. Per Subject</button>
-<button onclick="showTab(2,this)">2. AttitudePlus</button>
-<button onclick="showTab(3,this)">3. Broadsheet Combined 🔒</button>
-<button onclick="showTab(4,this)">4. Terminal Report 🔒</button>
-</div>
-<div class="bar no-print">
-<label>Class: <select id="cls" onchange="render()"></select></label>
-<label>Subject: <select id="subj" onchange="render()"><option>English Language</option><option>Mathematics</option><option>Integrated Science</option><option>Social Studies</option><option>RME</option><option>Career Technology</option><option>Creative Arts</option><option>Computing</option><option>French</option><option>Asante Twi</option></select></label>
-<label>Term: <select id="term" onchange="render()"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></label>
-<input id="search" placeholder="Search..." oninput="render()">
-<button class="btn" onclick="addLearner()">+ Add Learner</button>
-<button class="btn" onclick="save()">Save</button>
-<button class="btn" onclick="syncNames()">Sync Names From Class</button>
-<button class="btn" onclick="cloudSave(true)">☁️ Sync Now</button>
-<button class="btn dark" onclick="window.print()">Print</button>
-</div>
+<div id="loginScreen"><div class="loginBox"><div class="loginLogos"><img id="loginCoat" src="ghana-coat.png"><img id="loginLogo" src="bomso-logo.png"></div><h2>BOMSO M/A JHS</h2><h4>School Based Assessment System<br>OFORIKROM MUNICIPAL</h4><div style="text-align:left"><label>Email</label><input id="loginEmail" type="email" placeholder="Enter email e.g. bomsojhs@gmail.com" value="bomsojhs@gmail.com"><label>Password</label><input id="loginPass" type="password" placeholder="Enter password" value=""><label style="font-size:12px"><input type="checkbox" onclick="let p=document.getElementById('loginPass');p.type=p.type=='password'?'text':'password';" style="width:auto"> Show password</label></div><button class="btn" onclick="doLogin()">Login</button><div class="loginHint">Login Email: <b>bomsojhs@gmail.com</b><br>Password: <b>Bomso1998</b><br>Use the same password for Dashboard / Broadsheet / Terminal Report / Promotion.</div></div></div>
+<div id="archiveBanner">VIEWING ARCHIVE — <span id="archiveBannerYear"></span> — READ ONLY &nbsp; <button class="btn dark" onclick="exitArchive()">Exit Archive — Back to Current Year</button></div>
+<div class="topHeader no-print"><div><h1>BOMSO M/A JHS - SBA SYSTEM</h1><h3>School Based Assessment Score Sheet - Academic Year: <select id="academicYear" onchange="changeAcademicYear()" style="font-weight:bold;color:#1a6b2e"></select> &nbsp; <span id="cloudStatus">Connecting to Firebase...</span></h3></div><div class="topLogos"><img id="topCoat" src="ghana-coat.png"><img id="topLogo" src="bomso-logo.png"></div></div>
+<div class="tabs no-print"><button onclick="showTab(0,this)">0. Dashboard</button><button class="active" onclick="showTab(1,this)">1. Per Subject</button><button onclick="showTab(2,this)">2. AttitudePlus</button><button onclick="showTab(3,this)">3. Broadsheet Combined</button><button onclick="showTab(4,this)">4. Terminal Report</button><button onclick="showTab(5,this)">5. Promotion</button><button style="background:#c0392b" onclick="lockAll()">Lock All</button><button style="background:#222" onclick="doLogout()">Logout</button></div>
+<div class="bar no-print"><label>Class: <select id="cls" onchange="render()"></select></label><label>Subject: <select id="subj" onchange="render()"><option>English Language</option><option>Mathematics</option><option>Integrated Science</option><option>Social Studies</option><option>RME</option><option>Career Technology</option><option>Creative Arts</option><option>Computing</option><option>French</option><option>Asante Twi</option></select></label><label>Term: <select id="term" onchange="render()"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></label><input id="search" placeholder="Search..." oninput="render()"><button class="btn" onclick="addLearner()">+ Add Learner</button><button class="btn" onclick="save(true)">Save</button><button class="btn" onclick="syncNames()">Sync Names From Class</button><button class="btn" onclick="cloudSave(true)">Sync Now - Firebase</button><button class="btn dark" onclick="window.print()">Print</button></div>
 <div id="title" class="no-print" style="font-weight:bold;margin-bottom:8px"></div>
-<div id="tab0" style="display:none">
-<div class="dashGrid">
-<div class="dashCard"><b id="dashTotal">0</b><span>Total Learners</span></div>
-<div class="dashCard"><b id="dashClasses">0</b><span>Total Classes</span></div>
-<div class="dashCard"><b id="dashPass">0%</b><span>Overall Pass % (AGGR ≤30)</span></div>
-<div class="dashCard"><b id="dashBestLearner" style="font-size:16px">-</b><span>Best Learner (Lowest AGGR)</span></div>
-<div class="dashCard"><b id="dashBestClass" style="font-size:16px">-</b><span>Best Class (Highest Pass %)</span></div>
-</div>
-<div class="card"><h3 style="margin:0 0 8px">🔍 Search Learner Across All Classes</h3><input id="globalSearch" placeholder="Type learner name e.g. AMA..." style="width:100%;max-width:400px" oninput="searchLearnerGlobal()"><div id="globalResult" style="margin-top:10px"></div></div>
-<div class="card"><h3 style="margin:0 0 8px">📊 Pass % By Class</h3><div id="dashByClass"></div></div>
-<div class="card"><h3 style="margin:0 0 8px">🏆 Top 10 Learners - Whole School</h3><div id="dashTop10"></div></div>
-</div>
-<div id="tab1">
-<table><thead><tr><th>NO</th><th>NAME</th><th>SEX</th><th>IND 30</th><th>GRP 20</th><th>CLS 30</th><th>PRO 20</th><th>TTL 100</th><th>100s 50M</th><th>EXM 100</th><th>EXM 50%</th><th>ALL 100%</th><th>POS</th><th>GRADE</th><th>REMARKS</th></tr></thead><tbody id="tbody"></tbody></table>
-<button class="btn no-print" style="margin-top:10px" onclick="addLearner()">+ Add Learner</button>
-<div class="formula">REMARKS (by Grade): 1=Highest | 2=Higher | 3=High | 4=High Average | 5=Average | 6=Low Average | 7=Low | 8=Lower | 9=Lowest / Below &nbsp; | &nbsp; GRADE (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9</div>
-</div>
-<div id="tab2" style="display:none">
-<div class="bar no-print"><b>AttitudePlus - <span id="attTitle"></span></b> <button class="btn" onclick="saveAttitude()">Save Attitude</button> <button class="btn dark" onclick="window.print()">Print Attitude</button></div>
-<table><thead><tr><th>S#</th><th>NAMES OF PUPILS</th><th>ATTENDANCE</th><th>CONDUCT</th><th>ATTITUDE</th><th>INTEREST</th><th>CLASS TRS RMKS</th></tr></thead><tbody id="attBody"></tbody></table>
-<div class="formula">Teacher's Remarks stay as before.</div>
-</div>
-<div id="tab3" style="display:none">
-<div class="card">
-<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><b id="broadTitle"></b> <span id="broadTopButtons" class="no-print"><button class="btn red" onclick="lockReports()">🔒 Lock Reports</button> <button class="btn" onclick="exportBroadsheetCSV()">⬇ Download Excel</button> <button class="btn" onclick="window.print()">Print Broadsheet</button></span></div>
-<div class="broadWrap"><table>
-<thead><tr><th>S#</th><th>NAME</th><th colspan="2">ENG</th><th colspan="2">MATH</th><th colspan="2">SOC</th><th colspan="2">SCI</th><th colspan="2">GH LANG</th><th colspan="2">RME</th><th colspan="2">ICT</th><th colspan="2">FREN</th><th colspan="2">CAD</th><th colspan="2">C&amp;T</th><th>TOTAL</th><th>AGGR</th><th>RawScore</th><th>POSITION</th></tr>
-<tr><th></th><th></th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th></th><th></th><th></th><th></th></tr></thead>
-<tbody id="broadBody"></tbody></table></div>
-<div class="passBox" id="overallPass"></div>
-<div id="gradePassSection"><h3 style="margin-top:16px">GRADES &amp; PASS BY SUBJECT</h3>
-<div class="broadWrap"><table><thead><tr><th>SUBJECT</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>PASS (1-6)</th></tr></thead><tbody id="gradePassBody"></tbody></table></div></div>
-<div class="broadSign"><div><div class="line">PREPARED BY<br><span style="font-weight:400">Class / Subject Teacher</span></div></div><div><div class="line">CHECKED BY<br><span style="font-weight:400">Headteacher</span></div></div><div><div class="line">DATE<br><span style="font-weight:400" id="broadDate"></span></div></div></div>
-<div class="formula">Grading (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9 | AGGR = Sum of Best 6 Grades | Names stay in class-list order</div>
-</div>
-</div>
-<div id="tab4" style="display:none">
-<div class="card no-print">
-<label>Select Learner: <select id="repLearner" onchange="renderReport()"></select></label>
-<button class="btn" onclick="prevLearner()">← Prev</button> <button class="btn" onclick="nextLearner()">Next →</button>
-<button class="btn dark" onclick="printOne()">Print This Report</button> <button class="btn dark" onclick="printAll()">Print ALL Reports</button> <button class="btn green" onclick="sendWhatsAppCurrent()">💬 Send Result on WhatsApp</button> <button class="btn red" onclick="lockReports()">🔒 Lock Reports</button><br><br>
-<label>Vacation Date: <input id="vacDate" value="23RD JULY, 2026" onchange="saveMeta()"></label>
-<label>Re-opening Date: <input id="reopenDate" value="8TH SEPTEMBER, 2026" onchange="saveMeta()"></label>
-<label>Year: <input id="repYear" value="2026/2027" style="width:110px" onchange="saveMeta()"></label>
-<label>Promotion: <select id="promoStatus" onchange="saveMeta()"><option>PROMOTED TO BS8</option><option>PROMOTED TO BS9</option><option>PROMOTED TO BS7</option><option>REPEATED</option><option>PROMOTED</option></select></label>
-<label>Headteacher Tel: <input id="headTel" placeholder="Class/Form Teacher Tel No." onchange="saveMeta()"></label>
-<br><br>
-<div style="background:#fff3cd;padding:10px;border-radius:8px">
-<label class="btn orange" style="display:inline-block;margin-top:6px">📤 Upload Coat of Arms <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('coat',this)"></label> <span id="coatStatus">Not uploaded yet</span><br>
-<label class="btn orange" style="display:inline-block;margin-top:6px">📤 Upload School Logo <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('logo',this)"></label> <span id="logoStatus">Not uploaded yet</span>
-</div>
-</div>
-<div id="reportArea"></div><div id="printAllArea"></div></div>
+<div id="tab0" style="display:none"><div class="card"><div class="dashCards"><div class="dashCard"><b id="dTotal">317</b><span>Total Learners (Active Only - Old Students Not Counted)</span></div><div class="dashCard"><b id="dClasses">9</b><span>Total Classes (Old Students Not Counted)</span></div><div class="dashCard"><b id="dPass">-</b><span>Overall Pass % (AGGR ≤30)</span></div><div class="dashCard"><b id="dBest" style="font-size:14px;line-height:1.2">-</b><span>Best Learner</span></div><div class="dashCard"><b id="dBestClass" style="font-size:14px;line-height:1.2">-</b><span>Best Class</span></div></div><h3>Search Learner Across All Classes</h3><input id="globalSearch" placeholder="Type learner name e.g. AMA..." style="width:100%;max-width:400px" oninput="searchLearnerGlobal()"><div id="globalResult" style="margin-top:8px"></div><h3 style="margin-top:16px">Pass % By Class</h3><div id="dashByClass"></div><h3>Top 10 Learners - Whole School</h3><div id="dashTop10"></div></div></div>
+<div id="tab1"><table><thead><tr><th>NO</th><th>NAME</th><th>SEX</th><th>IND 30</th><th>GRP 20</th><th>CLS 30</th><th>PRO 20</th><th>TTL 100</th><th>100s 50M</th><th>EXM 100</th><th>EXM 50%</th><th>ALL 100%</th><th>POS</th><th>GRADE</th><th>REMARKS</th><th>DEL</th></tr></thead><tbody id="tbody"></tbody></table><button class="btn no-print" style="margin-top:10px" onclick="addLearner()">+ Add Learner</button><div class="formula no-print">REMARKS: 1=Highest | 2=Higher | 3=High | 4=High Average | 5=Average | 6=Low Average | 7=Low | 8=Lower | 9=Lowest | GRADE: 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9<br>Blank yellow rows = empty spaces for new Class 6 intake (JHS 1 only). Type a name in a blank row to make it a real learner.</div></div>
+<div id="tab2" style="display:none"><div class="bar"><b>AttitudePlus - <span id="attTitle"></span></b> <button class="btn orange" onclick="autoFillRemarks()">Auto-Fill Remarks by Score</button> <button class="btn" onclick="saveAttitude()">Save Attitude</button></div><div style="background:#e8f5e9;padding:8px;border-radius:8px;font-size:12px;margin-bottom:8px">Select from dropdowns — no typing needed. Conduct / Attitude / Interest / Class Teacher Remark. Attendance still typed (e.g. 45/60).</div><table><thead><tr><th>S#</th><th>NAMES OF PUPILS</th><th>ATTENDANCE</th><th>CONDUCT</th><th>ATTITUDE</th><th>INTEREST</th><th>CLASS TRS RMKS</th></tr></thead><tbody id="attBody"></tbody></table></div>
+<div id="tab3" style="display:none"><div class="card"><div class="broadControls no-print"><b>Broadsheet View:</b> <select id="broadMode" onchange="render()"><option value="single">Single Class - Use Class Above</option><option value="jhs1">JHS 1 Combined - 1A + 1B + 1C</option><option value="jhs2">JHS 2 Combined - 2A + 2B + 2C</option><option value="jhs3">JHS 3 Combined - 3A + 3B + 3C</option><option value="all">Whole School Combined - Active Only (Old Students Excluded)</option></select> <button class="btn red" onclick="toggleLock()">Lock Reports</button> <button class="btn" onclick="exportBroadsheetCSV()">Download Excel</button> <button class="btn dark" onclick="printBroadsheet()">Print Broadsheet</button><br><br></div><b id="broadTitle"></b><div style="overflow-x:auto"><table><thead><tr><th rowspan="2">NAME</th><th colspan="2">ENG</th><th colspan="2">MATH</th><th colspan="2">SOC</th><th colspan="2">SCI</th><th colspan="2">GH LANG</th><th colspan="2">RME</th><th colspan="2">ICT</th><th colspan="2">FREN</th><th colspan="2">CAD</th><th colspan="2">C&T</th><th rowspan="2">TOTAL</th><th rowspan="2">AGGR</th><th rowspan="2">RawScore</th><th rowspan="2">POSITION</th><th rowspan="2">CLASS</th></tr><tr><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th><th>MARK</th><th>GRD</th></tr></thead><tbody id="broadBody"></tbody></table></div><div id="overallPass" style="font-weight:bold;margin:12px 0"></div><div id="gradesBySubject"></div><div style="display:flex;justify-content:space-between;margin-top:24px;text-align:center"><div><b>PREPARED BY</b><br>Class / Subject Teacher<br><br>__________________</div><div><b>CHECKED BY</b><br>Headteacher<br><br>__________________</div><div><b>DATE</b><br><span id="broadDate">13 November 2026</span><br><br>__________________</div></div><div style="background:#fff3cd;padding:8px;border-radius:8px;margin-top:12px;font-size:12px">Grading (BECE): 90-100=1, 80-89=2, 70-79=3, 60-69=4, 55-59=5, 50-54=6, 40-49=7, 35-39=8, 0-34=9 | AGGR = Sum of Best 6 Grades</div></div></div>
+<div id="tab4" style="display:none"><div class="card reportControls"><label>Select Learner: <select id="repLearner" onchange="renderReport()"></select></label> <button class="btn" onclick="prevLearner()">Prev</button> <button class="btn" onclick="nextLearner()">Next</button> <button class="btn dark" onclick="printOne()">Print This Report</button> <button class="btn dark" onclick="printAll()">Print ALL Reports</button> <button class="btn green" onclick="sendWhatsAppCurrent()">Send Result on WhatsApp</button> <button class="btn blue" onclick="sendSMSCurrent()">Send Result on SMS</button><br><br><label>Vacation Date: <input id="vacDate" value="20th may,2034" oninput="saveMeta()"></label> <label>Re-opening Date: <input id="reopenDate" value="8TH SEPTEMBER, 2026" oninput="saveMeta()"></label> <label>Year: <input id="repYear" value="2026/2027" oninput="saveMeta()" style="width:110px"></label> <label>Promotion: <select id="promoInput" onchange="saveMeta()" style="width:200px"><option>PROMOTED TO BS8</option><option>PROMOTED TO BS9</option><option>REPEATED</option><option>WITHDRAWAL</option></select></label><br><br><label>Class/Form Teacher Tel No: <input id="teacherTel" placeholder="e.g. 024 XXX XXXX" oninput="saveMeta()"></label> <label>Headteacher Tel: <input id="headTel" placeholder="e.g. 024 XXX XXXX" oninput="saveMeta()"></label> <span id="telHint" style="font-size:12px;color:green;font-weight:bold"></span><br><br><div style="background:#fff3cd;padding:10px;border-radius:8px"><label class="btn orange" style="display:inline-block">Upload Coat of Arms <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('coat',this)"></label> <span id="coatStatus">Not uploaded yet</span><br><label class="btn orange" style="display:inline-block;margin-top:6px">Upload School Logo <input type="file" accept="image/*" style="display:none" onchange="uploadLogo('logo',this)"></label> <span id="logoStatus">Not uploaded yet</span></div></div><div id="reportArea"></div><div id="printAllArea"></div></div>
+<div id="tab5" style="display:none"><div class="card"><h3>End of Year Promotion — Current Year: 2026/2027</h3><p><b>Step 1:</b> Tick students who must <b>REPEAT</b>. <b>Step 2:</b> Press PROMOTE. <b>Step 3:</b> If mistake, press UNDO — press UNDO again to go back one more year, or UNDO ALL to go straight back to where you started.</p><p style="background:#fff3cd;padding:10px;border-radius:8px">JHS 3 (not repeating) of <b>2026/2027</b> goes to <b>OLD STUDENTS - 2026/2027</b> (the year they finished). JHS 2 goes to JHS 3. JHS 1 goes to JHS 2. Repeaters stay. <b>On PROMOTE:</b> Past year 2026/2027 is archived, Academic Year moves to 2027/2028, marks + Attitude cleared fresh, Term = Term 1, new JHS 1A/B/C created with Repeaters + 40 blank spaces each. Old Students are <b>NOT</b> counted in Dashboard / Class list / Broadsheet — only in View Old Students and in Archive.</p><button class="btn orange" onclick="renderPromotionList()">1. Show Students To Choose Repeaters</button> <button class="btn" onclick="doPromote()">2. PROMOTE ALL NOW</button> <button class="btn red" onclick="undoPromote()">UNDO Last Promotion</button> <button class="btn red" onclick="undoAllPromote()">UNDO ALL — Back to Start</button> <button class="btn dark" onclick="showOldStudents()">View Old Students</button> <button class="btn" onclick="exportPromotionCSV()">Download Promotion List (Excel)</button><div id="promoHistoryArea" style="margin-top:12px;background:#fff3cd;padding:10px;border-radius:8px"></div><div style="margin-top:14px;background:#e8f5e9;padding:10px;border-radius:8px"><b>View Past Academic Year (Archive):</b> <select id="archiveYear"></select> <button class="btn" onclick="viewArchive()">View Archive — Show FULL Past Year Data</button> <button class="btn orange" onclick="restoreArchive()">Restore This Year</button><div id="archiveArea" style="margin-top:8px"></div><div style="font-size:12px;margin-top:6px">View Archive now opens the past year in ALL tabs: Per Subject, AttitudePlus, Broadsheet, Terminal Report, Dashboard. It is Read-Only. Press Exit Archive on the red banner to go back.</div></div><div id="promoArea" style="margin-top:12px"></div><div id="oldArea" style="margin-top:12px"></div></div></div>
 <script>
-// ========= YOUR REAL FIREBASE CONFIG - ALREADY FILLED IN =========
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyA6ogavkh0FzDVh3-x9tNzgfKPeoakpwN4",
-  authDomain: "bomso-sba.firebaseapp.com",
-  databaseURL: "https://bomso-sba-default-rtdb.firebaseio.com",
-  projectId: "bomso-sba",
-  storageBucket: "bomso-sba.firebasestorage.app",
-  messagingSenderId: "521096694994",
-  appId: "1:521096694994:web:affa152054ce6bbc9f310b"
-};
-// ============================================================
-const REPORT_PASS="Bomso124";
-const LOGIN_PASS="Bomso124";
-let reportsUnlocked=false;
-let cloudDB=null, cloudReady=false, isApplyingCloud=false, cloudTimer=null;
-function initCloud(){
-  try{
-    firebase.initializeApp(FIREBASE_CONFIG);
-    cloudDB=firebase.database();
-    cloudReady=true;
-    document.getElementById('cloudStatus').innerText="🟢 Internet Sync ON";
-    document.getElementById('cloudStatus').style.background="#d4edda";
-    cloudDB.ref('bomso-sba-v1').on('value', (snap)=>{
-      let d=snap.val(); if(!d) return;
-      if(isApplyingCloud) return;
-      let cloudStr=JSON.stringify(d);
-      let localStr=JSON.stringify({store,attStore,metaStore,logoStore});
-      if(cloudStr===localStr) return;
-      isApplyingCloud=true;
-      if(d.store) store=d.store; if(d.attStore) attStore=d.attStore; if(d.metaStore) metaStore=d.metaStore; if(d.logoStore) logoStore=d.logoStore;
-      localStorage.setItem('bomso_v2',JSON.stringify(store));
-      localStorage.setItem('bomso_att',JSON.stringify(attStore));
-      localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
-      localStorage.setItem('bomso_logos',JSON.stringify(logoStore));
-      render();
-      setTimeout(()=>{isApplyingCloud=false;},500);
-    });
-  }catch(e){ console.log("Cloud error",e); document.getElementById('cloudStatus').innerText="🔴 Cloud Error - Check Config"; }
+const firebaseConfig={apiKey:"AIzaSyA9f7veE8TJDvbFKl-OJDsktT5BUcosDEY",authDomain:"bomso-jhs.firebaseapp.com",databaseURL:"https://bomso-jhs-default-rtdb.firebaseio.com",projectId:"bomso-jhs",storageBucket:"bomso-jhs.firebasestorage.app",messagingSenderId:"663445780265",appId:"1:663445780265:web:fd98842b17b99c2081e938"};
+let firebaseReady=false;try{firebase.initializeApp(firebaseConfig);firebaseReady=true;}catch(e){console.log(e);}
+function cp(x){return JSON.parse(JSON.stringify(x));}
+let LOGIN_EMAIL="bomsojhs@gmail.com";
+let PASS="Bomso1998";
+let loggedIn=false;
+let currentTab=1;
+function doLogin(){
+let em=(document.getElementById('loginEmail').value||'').trim().toLowerCase();
+let pw=document.getElementById('loginPass').value||'';
+if(em===LOGIN_EMAIL&&pw===PASS){loggedIn=true;document.getElementById('loginScreen').style.display='none';document.getElementById('cloudStatus').innerText='Logged in as '+em+' - Firebase ON';pullFromFirebase();showTab(1,null);}
+else{alert('Wrong email or password. Use Email: '+LOGIN_EMAIL+' Password: Bomso1998');}
 }
-function cloudSave(showMsg){
-  localStorage.setItem('bomso_v2',JSON.stringify(store));
-  localStorage.setItem('bomso_att',JSON.stringify(attStore));
-  localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
-  localStorage.setItem('bomso_logos',JSON.stringify(logoStore));
-  if(!cloudReady) { if(showMsg) alert('Saved locally. Cloud not ready.'); return; }
-  isApplyingCloud=true;
-  cloudDB.ref('bomso-sba-v1').set({store,attStore,metaStore,logoStore, updatedAt: Date.now()}).then(()=>{
-    document.getElementById('cloudStatus').innerText="🟢 Synced - "+new Date().toLocaleTimeString();
-    if(showMsg) alert('☁️ Synced to internet! Other phones will see it now.');
-    setTimeout(()=>{isApplyingCloud=false;},500);
-  }).catch(err=>{ isApplyingCloud=false; if(showMsg) alert('Sync failed: '+err.message); });
+function doLogout(){loggedIn=false;document.getElementById('loginPass').value='';document.getElementById('loginScreen').style.display='flex';showTab(1,null);}
+function lockAll(){currentTab=1;showTab(1,null);alert('Locked. Dashboard / Broadsheet / Terminal Report / Promotion need password again.');}
+function snap(){
+let o={};
+o.DATA=cp(DATA);
+o.store=cp(store);
+o.attStore=cp(attStore);
+o.blankSlots=cp(blankSlots);
+o.archiveStore=cp(archiveStore);
+o.promoHistory=cp(promoHistory);
+o.metaStore=cp(metaStore);
+o.year=metaStore.year||'2026/2027';
+o.when=new Date().toLocaleString();
+return o;
 }
-function doLogin(){let email=document.getElementById('loginEmail').value.trim();let pass=document.getElementById('loginPass').value;let err=document.getElementById('loginError');let emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);if(!email){err.innerText='Please enter your email address.';return;}if(!emailOk){err.innerText='Please enter a valid email e.g. teacher@bomso.edu.gh';return;}if(!pass){err.innerText='Please enter password.';return;}if(pass!==LOGIN_PASS){err.innerText='Wrong password! Access denied.';return;}err.innerText='';document.getElementById('loginOverlay').style.display='none';sessionStorage.setItem('bomso_loggedin',email);}
-function logoutSystem(){sessionStorage.removeItem('bomso_loggedin');document.getElementById('loginPass').value='';document.getElementById('loginError').innerText='You have logged out.';document.getElementById('loginOverlay').style.display='flex';}
-const DATA=[
-["JHS 1A","ABDUL MUMIN MAMUNATU","F"],["JHS 1A","ACHEAMPONG ELVIS","M"],["JHS 1A","ACQUAH BISMARK","M"],["JHS 1A","ADJEI JANET","F"],["JHS 1A","ADZOKO PATIENCE","F"],["JHS 1A","AGBEKO EMMANUEL","M"],["JHS 1A","AIKENS MILDRED","F"],["JHS 1A","AKAPUNI THERESAH","F"],["JHS 1A","AMENYO SARAH","F"],["JHS 1A","AMOAKO EMELIA","F"],["JHS 1A","AMOAKWA NYARKO ROSE","F"],["JHS 1A","ANTHONY ESTHER","F"],["JHS 1A","APPIAH NHYIRABA NANA","M"],["JHS 1A","ARTHUR BAIDOO MICHELLE","F"],["JHS 1A","ASSAN BLESSING","F"],["JHS 1A","ATOBIA CINDY","F"],["JHS 1A","BAIDOO CECILIA","F"],["JHS 1A","BOAKYE SERWAA DOROTHY","F"],["JHS 1A","BOATEMAA AUGUSTINA","F"],["JHS 1A","DOVI THOMAS","M"],["JHS 1A","FYNN PATRICK","M"],["JHS 1A","KAKORA KEZIAH","F"],["JHS 1A","KOLOG BETTY","F"],["JHS 1A","KUMI TUTU WILLIAM","M"],["JHS 1A","MAWULI DIVINE","M"],["JHS 1A","MENSAH REBECCA","F"],["JHS 1A","MOHAMMED MARIAM","F"],["JHS 1A","NTI JEFFREY","M"],["JHS 1A","OFOBI BRIDGET","F"],["JHS 1A","OSEI BONSU MIRACLE","M"],["JHS 1A","OTENG KWAKU","M"],["JHS 1A","OTOO GIFTY","F"],["JHS 1A","OWUSU KINGSLEY","M"],["JHS 1A","OWUSUAA RICHLOVE","F"],["JHS 1A","QUAINOO DAUGLAS","M"],["JHS 1A","SARFO YAW BLESSING","M"],["JHS 1A","TAWIA FAUSTINA","F"],["JHS 1A","TEE ISREAL","M"],["JHS 1A","TUMOR ESTHER","F"],["JHS 1A","ZAN KOSSI SAMUEL","M"],["JHS 1A","MENSAH SARIAM EMMANUELLA","F"],
-["JHS 1B","ABOAGYE BOATENG RANSFORD","M"],["JHS 1B","ACHEAMPONG MOSES","M"],["JHS 1B","ADDAI KWABENA JOHN","M"],["JHS 1B","ADU NKRUMAH MARVIN","M"],["JHS 1B","AFFUL FLORENCE","F"],["JHS 1B","AGBEMEFAH ISAIAH","M"],["JHS 1B","AKANGAIBA CHRISTIAN","M"],["JHS 1B","AKORLI CHRISTABEL","F"],["JHS 1B","AMANKWAA HENRY","M"],["JHS 1B","AMEYAA AMA","F"],["JHS 1B","AMOAKO BROBBEY CHARLSE","M"],["JHS 1B","AMPONSAH ELIZABETH","F"],["JHS 1B","ANTWI BOAFO DERRICK","M"],["JHS 1B","ASIEWEN BLESS","F"],["JHS 1B","ATOBIA BENARD","M"],["JHS 1B","ATTAH BEATRICE","F"],["JHS 1B","BAIDOO CHRISTABEL","F"],["JHS 1B","BOAMAH BERNICE","F"],["JHS 1B","DANKWA SERWAA DIVIAN","F"],["JHS 1B","ELOLO CREEPY MICHAEL","M"],["JHS 1B","GARMAH JOSEPH","M"],["JHS 1B","KISSIWAA ANGELA","F"],["JHS 1B","KUSI APPIAH VICTORIA","F"],["JHS 1B","MAWULI FLORENCE","F"],["JHS 1B","MENSAH ENYONAM CONFIDENCE","F"],["JHS 1B","NEVAME REGINA AGBRAKEY","F"],["JHS 1B","NUKPETSI CHRISTIAN","M"],["JHS 1B","OFOSU ANIN HAGAR","F"],["JHS 1B","OSEI OWUSU PAMELA","F"],["JHS 1B","OWUSU BANAHENE RAMZI","M"],["JHS 1B","PETER BENTIL","M"],["JHS 1B","QUAINOO WENDY","F"],["JHS 1B","SARFO KWADWO CALEB J.","M"],["JHS 1B","SUGWEY ERNESTINA","F"],["JHS 1B","TAWIAH COMFORT","F"],["JHS 1B","TIBILA DAVID","M"],["JHS 1B","YAKUBU PORTIA","F"],["JHS 1B","YEAMKUTUOYEL DORCAS","F"],
-["JHS 1C","ABRAFI NANA AMA","F"],["JHS 1C","ACQUAH GODLOVE","M"],["JHS 1C","ADDAI CLEMENT","M"],["JHS 1C","ADUSU CHRISTIAN","M"],["JHS 1C","AGBEDZORFE SESHIMEY","F"],["JHS 1C","AGYAPONG KWAKU","M"],["JHS 1C","AKANWEY PATIENCE","F"],["JHS 1C","AMENYAGLO RICHMOND","M"],["JHS 1C","AMOA-YAW KODUA GOSPEL","M"],["JHS 1C","AMOAKO ERNEST","M"],["JHS 1C","ANOKYE GETRUDE","F"],["JHS 1C","ANTWI SAMUEL","M"],["JHS 1C","ASOMGEGO ABIGAIL","F"],["JHS 1C","ATOBIA BEMJAMIN","M"],["JHS 1C","AYINE LOVINJA","F"],["JHS 1C","BANDOH JOEL","M"],["JHS 1C","BOAMPONG DOMINIC","M"],["JHS 1C","DOGBE KWAKU RICHARD","M"],["JHS 1C","FIAKU SARAH","F"],["JHS 1C","GBORNUITAH THERESAH","F"],["JHS 1C","HELETSI JOEL","M"],["JHS 1C","KPORDZO MABEL","F"],["JHS 1C","MANU NKANSAH PETER","M"],["JHS 1C","MENSAH SERIAN EMMANUELLA","F"],["JHS 1C","MENYANSAH JOSHUA","M"],["JHS 1C","MIKEHU MARTIN","M"],["JHS 1C","NKRUMAH JOSEPH","M"],["JHS 1C","OBENG GRACE","F"],["JHS 1C","OPPONG RICHEL","F"],["JHS 1C","OSEI ERNESTINA","F"],["JHS 1C","OSEI CLEMENT","M"],["JHS 1C","OWUSU ANSAH WINIFRED","F"],["JHS 1C","QUAINOO DANIEL","M"],["JHS 1C","QUANSAH COLLINA","F"],["JHS 1C","TAKYI MAXWELL","M"],["JHS 1C","TAWIAH GLORIA","F"],["JHS 1C","TONYVIADZI HILDA","F"],["JHS 1C","YAKUBU AISHA","F"],
-["JHS 2A","ABEKA ALICIA PRINCESS","F"],["JHS 2A","ABU-BONSRAH GEORGINA","F"],["JHS 2A","ACHEAMPONG BRIDGET","F"],["JHS 2A","ADABOYA BLESSING","F"],["JHS 2A","ADETARIMAH SINORITA MIRIAM","F"],["JHS 2A","ADOODZI CLEMENT","M"],["JHS 2A","AFIWAA DORA SOGBO","F"],["JHS 2A","AFRAM ANAS","M"],["JHS 2A","AHUN NYAABA STEPHANIE","F"],["JHS 2A","AKAKPO YAW","M"],["JHS 2A","AMOAKO GODFRED","M"],["JHS 2A","AMPONSAH KELVIN","M"],["JHS 2A","AMUZU ZION","M"],["JHS 2A","ANTWIWAA FELICIA","F"],["JHS 2A","APPIAH EVA","F"],["JHS 2A","ARKO CECILIA","F"],["JHS 2A","ATISO JENNIFER","F"],["JHS 2A","ATOBIA HENRY","M"],["JHS 2A","AWUNI GRACELYN AKADIRI","F"],["JHS 2A","DANQUAH BRIGHT OWUSU","M"],["JHS 2A","DANSO FLORENCE","F"],["JHS 2A","KWAKYE SAMUELLA","F"],["JHS 2A","KYEREMATENG LORDINA OWUSUWAA","F"],["JHS 2A","MENSAH FRANK CHARLES","M"],["JHS 2A","MENYANSA KWAME","M"],["JHS 2A","MWINFAAR MAYBEL","F"],["JHS 2A","NAMALTENG THEOPHILLIA","F"],["JHS 2A","NIMO AMBROSE BAFFOUR","M"],["JHS 2A","NYANUBAH HUBERT PRINCE","M"],["JHS 2A","OBENG MERIAM ADOM","F"],["JHS 2A","OWUSU WILLIAMS PREMPEH","M"],["JHS 2A","PELLINYIN EMMANUELLA","F"],["JHS 2A","QUANSAH ANNABEL","F"],["JHS 2A","TETTEH EVA","F"],["JHS 2A","TUFFOUR-YEBOAH ADOMAA FLORENCE","F"],
-["JHS 2B","ADASI RITA RITA","F"],["JHS 2B","ADDAI VICTORIA","F"],["JHS 2B","ADJOKO FAMOUS","M"],["JHS 2B","ADOMOLGA PROVIDENCE","F"],["JHS 2B","ADZAKLO HELENA","F"],["JHS 2B","AGBOZO REDEEMER","F"],["JHS 2B","AGYEI FRANCIS","M"],["JHS 2B","AGYEI FAVOUR ASANTEWAA","F"],["JHS 2B","AKAKPO RAYMOND","M"],["JHS 2B","AKAKPO SARAPHINA","F"],["JHS 2B","AKANTAME RICHMOND YAHAYA","M"],["JHS 2B","AMEVI ESTHER SIMON","F"],["JHS 2B","AMPOFO JAMES","M"],["JHS 2B","ANDZIE ROCKSON","M"],["JHS 2B","ANDZIE KELVIN","M"],["JHS 2B","ANNAN DOROTHY GYAMERAH","F"],["JHS 2B","ARTHUR ELIZABETH","F"],["JHS 2B","ASSAH SAMUEL","M"],["JHS 2B","BADAKOM ALICE","F"],["JHS 2B","BENEWAA BEATRICE","F"],["JHS 2B","HAMZA JERRY","M"],["JHS 2B","MUSAH SEKINA","F"],["JHS 2B","NAAB HANNAH","F"],["JHS 2B","NAWUMBEY SEIDU","M"],["JHS 2B","OFORI DANIEL","M"],["JHS 2B","OFORI WAA FLORENCE","F"],["JHS 2B","OSAAH MARY","F"],["JHS 2B","OSMAN JIBRIL MOHAMMED","M"],["JHS 2B","OTENG EMMANUEL","M"],["JHS 2B","PELLINYM DANIELLA","F"],["JHS 2B","SALAM MUDAT","F"],["JHS 2B","SARFO NOAH","M"],["JHS 2B","YIN HANNAH","F"],["JHS 2B","YINTET BRIGHTINA ZOOG","F"],
-["JHS 2C","ACHAW ACHAW","F"],["JHS 2C","ADOBILA RAYMOND","M"],["JHS 2C","AGYEMANG JOSEPHINE","F"],["JHS 2C","AHUN STEPHAN GORMAN","M"],["JHS 2C","ALINYO AGARTHA","F"],["JHS 2C","AMENU JENNIFER","F"],["JHS 2C","AMOAH CHARITY","F"],["JHS 2C","AMOFA DENNIS","M"],["JHS 2C","AMUZU ANDRANA","F"],["JHS 2C","ANTHONY KINGSLEY","M"],["JHS 2C","ARTHUR FAUSTINA","F"],["JHS 2C","ARTHUR JONATHAN","M"],["JHS 2C","BAHENSE FATI","F"],["JHS 2C","BOAKYE JENNIFER","F"],["JHS 2C","DOGLI CHRISTOPHER","M"],["JHS 2C","ESSUMAN JEFFERY","M"],["JHS 2C","FRIMPONG WENDY KYERAA","F"],["JHS 2C","FRIMPONGMAA FREDA","F"],["JHS 2C","GYAN COMFORT","F"],["JHS 2C","MENSAH ROSE","F"],["JHS 2C","MENSAH RICHMOND","M"],["JHS 2C","MORTSO BERNARD","M"],["JHS 2C","NYAMEKYE COMFORT FORKUO","F"],["JHS 2C","OBRISI CHRIS","M"],["JHS 2C","OPOKU GIDEON","M"],["JHS 2C","OSEI MARGARET","F"],["JHS 2C","OWUSU BERNARD TAKYI","M"],["JHS 2C","SOSU DANIEL","M"],["JHS 2C","TERKPER GIFTY GIFTY","F"],["JHS 2C","TETTEH JESSICA KODUAH","F"],["JHS 2C","TWENEBOAH KWAME KODUAH","M"],["JHS 2C","WORKEDZI SAMUEL","M"],["JHS 2C","YEBOAH-TUFFOUR A. FLORENCE","F"],["JHS 2C","YORK STEPHEN","M"],
-["JHS 3A","ACQUAH RUTH","F"],["JHS 3A","ADARKWAH LILIAN","F"],["JHS 3A","ADZOKO AMANDA","F"],["JHS 3A","AFORU EMMANUELLA","F"],["JHS 3A","AGOOWAH EMMANUELLA","F"],["JHS 3A","AKORABOUR BLESSING","F"],["JHS 3A","AMUZU GLORIA","F"],["JHS 3A","APPIAH BLESSING","F"],["JHS 3A","APPIAH BLESSING SERWAA","F"],["JHS 3A","ATOTINGA MILDRED","F"],["JHS 3A","ATSU RUTH","F"],["JHS 3A","KWAMAH HERTY","F"],["JHS 3A","MENSAH FELICIA","F"],["JHS 3A","NAMKENA CINDY","F"],["JHS 3A","NYAABA MICHELLE","F"],["JHS 3A","OPPONG ELIZABETH","F"],["JHS 3A","SAGOE CLARA BOATEMAA","F"],["JHS 3A","SARPONG COMFORT SERWAA","F"],["JHS 3A","ABUBAKARI MAXWELL","M"],["JHS 3A","AGYEI PAUL","M"],["JHS 3A","APPAU FRANK","M"],["JHS 3A","BOADI GRIFFITH","M"],["JHS 3A","BOATENG ROLAND FRIMPONG","M"],["JHS 3A","BUODU JOEL BENIN DEYI","M"],["JHS 3A","DOGBEY JUSTICE","M"],["JHS 3A","GYASI STEPHEN","M"],["JHS 3A","HIATORPE CLINTON","M"],["JHS 3A","KAKORA GABRIEL","M"],["JHS 3A","NUKPORFE DIVINE KWAME","M"],["JHS 3A","OPOKU CHRISTIAN","M"],["JHS 3A","OSEI WILLIAMS","M"],["JHS 3A","OWUSU RAYMOND YEBOAH","M"],["JHS 3A","YAMOAH EMMANUEL JOSEPH AFORO NKRUMAH","M"],["JHS 3A","YEBOAH LIAM NANA OTENG","M"],
-["JHS 3B","ACHIAA GEORGINA","F"],["JHS 3B","ANTWI YVONNE","F"],["JHS 3B","ARHINFUL EVELYN","F"],["JHS 3B","AWUNI GRACE","F"],["JHS 3B","DANSOWAA CHRISTIANA","F"],["JHS 3B","FYNN MAVIS","F"],["JHS 3B","MENSAH BLESSING","F"],["JHS 3B","NARTEY GLADYS","F"],["JHS 3B","NKRUMAH ESTHER ABENA","F"],["JHS 3B","BOAKYE EUNICE NYANEKYE","F"],["JHS 3B","ODURO MARY","F"],["JHS 3B","OFORI ANITA","F"],["JHS 3B","OSEI EVA","F"],["JHS 3B","TUMOR SANDRA","F"],["JHS 3B","AGBEKPORNU PROSPER","M"],["JHS 3B","AGYEI DANIEL","M"],["JHS 3B","AIDOO EMMANUEL","M"],["JHS 3B","ANOKYE-AMOAKO SETH","M"],["JHS 3B","BOAKYE JOSEPH ASAMOAH","M"],["JHS 3B","ATTIMPAADEM GODBLESS","M"],["JHS 3B","BAFFOUR KYEI ANDERSON","M"],["JHS 3B","DANKWA PRINCE KUSI","M"],["JHS 3B","HAGAN EMMANUEL","M"],["JHS 3B","OPOKU JUNIOR APPIAH","M"],["JHS 3B","OSEI GEORGE BOAMAH","M"],["JHS 3B","OSEI SAMUEL","M"],["JHS 3B","OWUSU CINDY BOATENG","F"],["JHS 3B","TSIKATA HOPESON","M"],["JHS 3B","TWENEBOAH SENIOR ATTA","M"],["JHS 3B","TWUMASI WILLIAM","M"],["JHS 3B","ZAN EBENEZER WISDOM","M"],
-["JHS 3C","ACQUAH RACHEAL","F"],["JHS 3C","AKOBIYA ABIGAIL","F"],["JHS 3C","ANSAH ASEDA","F"],["JHS 3C","ASIGBE ROSA","F"],["JHS 3C","DANSO ELLEN","F"],["JHS 3C","FOSU CHRISTABEL","F"],["JHS 3C","MICAH VIDA","F"],["JHS 3C","OSEI GEORGINA BOAMAH","F"],["JHS 3C","OSEI EVELYN","F"],["JHS 3C","OWUSU DIANA AMOATENG","F"],["JHS 3C","SARFO SARAH AMA","F"],["JHS 3C","YAABA CHRISTABEL EFFUA","F"],["JHS 3C","YIRAAN PURE","F"],["JHS 3C","YIRAAN PRINCE","M"],["JHS 3C","ADJEI SOLOMON MAWUKOEYNA","M"],["JHS 3C","AKOMEAH GIOVANNI","M"],["JHS 3C","AMEVI MAXWEL","M"],["JHS 3C","AMOAFUL SAMUEL","M"],["JHS 3C","AMUZU ANDREWS","M"],["JHS 3C","ANSAH RANSFORD","M"],["JHS 3C","ARTHUR GODFRED","M"],["JHS 3C","AWUTEY ERIC","M"],["JHS 3C","KUDOLO FERDINAND","M"],["JHS 3C","MENSAH SHADRACK","M"],["JHS 3C","MUNTARI EMMANUEL","M"],["JHS 3C","NDAANA ROLAND","M"],["JHS 3C","NKRUMAH EMMANUEL KOJO","M"],["JHS 3C","NTIAMOAH SAMUEL","M"],["JHS 3C","NYAMEDEA DIVINE","M"],["JHS 3C","OTOO SYLVESTER","M"],["JHS 3C","POKU AKWASI","M"],["JHS 3C","TAWIAH JEAL KWAKU","M"]
-];
-let classes=[...new Set(DATA.map(d=>d[0]))];
-let store=JSON.parse(localStorage.getItem('bomso_v2')||'{}');
-let attStore=JSON.parse(localStorage.getItem('bomso_att')||'{}');
-let metaStore=JSON.parse(localStorage.getItem('bomso_meta')||'{}');
-let logoStore=JSON.parse(localStorage.getItem('bomso_logos')||'{}');
-const MAX={ind:30,grp:20,cls:30,pro:20,exm:100};
-const OPTS={conduct:["","Excellent","Very Good","Good","Fair","Poor","Needs Improvement"],attitude:["","Excellent","Very Good","Good","Fair","Poor","Positive","Respectful","Cooperative"],interest:["","Reading","Mathematics","Science","English","Football","Sports","Music","Drawing","Dancing","Computing","Art","Farming","Cooking"],remarks:["","Excellent performance","Very Good","Good","Keep it up","Satisfactory","Needs Improvement","Can do better","Work harder","Promoted","Excellent - Keep it up"]};
-const BROAD_SUBJECTS=[{code:"ENG",full:"English Language"},{code:"MATH",full:"Mathematics"},{code:"SOC",full:"Social Studies"},{code:"SCI",full:"Integrated Science"},{code:"GH LANG",full:"Asante Twi"},{code:"RME",full:"RME"},{code:"ICT",full:"Computing"},{code:"FREN",full:"French"},{code:"CAD",full:"Creative Arts"},{code:"C&T",full:"Career Technology"}];
-const REP_SUBJECTS=["English Language","Mathematics","Integrated Science","Creative Arts","Computing","RME","Asante Twi","Social Studies","French","Career Technology"];
-const REP_LABEL={ "English Language":"English Language","Mathematics":"Mathematics","Integrated Science":"Science","Creative Arts":"Creative Art","Computing":"Computing","RME":"Religious and Moral","Asante Twi":"Ghanaian Language","Social Studies":"Social Studies","French":"French","Career Technology":"Career Technology"};
-function beceGrade(m){if(m==null||m===''||isNaN(m))return null; m=+m; if(m>=90)return 1; if(m>=80)return 2; if(m>=70)return 3; if(m>=60)return 4; if(m>=55)return 5; if(m>=50)return 6; if(m>=40)return 7; if(m>=35)return 8; return 9;}
-function gradeRemark(g){return {1:'HIGHEST',2:'HIGHER',3:'HIGH',4:'HIGH AVERAGE',5:'AVERAGE',6:'LOW AVERAGE',7:'LOW',8:'LOWER',9:'LOWEST'}[g]||'-';}
-function grade(s){let g=beceGrade(s);return [g==null?'-':g, gradeRemark(g)];}
-function suffix(n){if(n==1)return '1st';if(n==2)return '2nd';if(n==3)return '3rd';return n+'th';}
-function buildAcademicYears(){let sel=document.getElementById('academicYear');let opts=[];for(let i=0;i<20;i++){let y=2026+i;opts.push(`<option>${y}/${y+1}</option>`);}sel.innerHTML=opts.join('');let saved=metaStore.academicYear||metaStore.year||'2026/2027';if(opts.some(o=>o.includes(saved)))sel.value=saved;else sel.value='2026/2027';}
-function changeAcademicYear(){let v=document.getElementById('academicYear').value;metaStore.academicYear=v;metaStore.year=v;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ry=document.getElementById('repYear');if(ry)ry.value=v;renderReport();cloudSave(false);}
-function attKey(){return document.getElementById('cls').value+'|'+document.getElementById('term').value}
-function getAtt(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=attKey();if(!attStore[k]){attStore[k]=list.map(d=>({name:d[1],att:'',conduct:'',attitude:'',interest:'',remarks:''}))}return attStore[k]}
-function key(){return document.getElementById('cls').value+'|'+document.getElementById('subj').value+'|'+document.getElementById('term').value}
-function getRows(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();if(!store[k]){store[k]=list.map(d=>({name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''}))}return store[k]}
-function getScoreFor(cls,subj,term,name){let k=cls+'|'+subj+'|'+term;let arr=store[k];if(!arr)return null;let r=arr.find(x=>x.name==name);if(!r)return null;let has=(r.ind!==''||r.grp!==''||r.cls!==''||r.pro!==''||r.exm!=='');if(!has)return null;let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);return {class50:ttl/2, exam50:(+r.exm||0)/2, total:ttl/2+(+r.exm||0)/2};}
-function getSubjectPosition(cls,subj,term,name){let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let scores=names.map(n=>{let s=getScoreFor(cls,subj,term,n);return {name:n,total:s?s.total:-1}});let sorted=[...scores].sort((a,b)=>b.total-a.total);let idx=sorted.findIndex(x=>x.name==name);if(idx<0)return '-';let my=scores.find(x=>x.name==name);if(my.total<0)return '-';let rank=1;for(let i=0;i<idx;i++){if(sorted[i].total>my.total)rank++;}return suffix(rank);}
-function getBroadPosition(cls,term,name){let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let data=names.map(n=>{let grades=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,n);grades.push(m?beceGrade(m.total):null)});let vg=grades.filter(g=>g!=null).sort((a,b)=>a-b);let aggr=vg.slice(0,6).reduce((a,b)=>a+b,0);let marks=BROAD_SUBJECTS.map(s=>{let m=getScoreFor(cls,s.full,term,n);return m?m.total:null}).filter(x=>x!=null);let raw=marks.length?marks.reduce((a,b)=>a+b,0)/marks.length:0;return {name:n,aggr,raw}});let ranked=[...data].sort((a,b)=>(a.aggr-b.aggr)||(b.raw-a.raw));let idx=ranked.findIndex(x=>x.name==name);if(idx<0)return '-';let my=data.find(x=>x.name==name);let rank=1;for(let i=0;i<idx;i++){if(ranked[i].aggr<my.aggr||(ranked[i].aggr==my.aggr&&ranked[i].raw>my.raw))rank++;}return suffix(rank);}
-function learnerSummary(cls,term,name){let marks=[];let grades=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,name);marks.push(m?m.total:null);grades.push(m?beceGrade(m.total):null);});let vg=grades.filter(g=>g!=null).sort((a,b)=>a-b);let aggr=vg.slice(0,6).reduce((a,b)=>a+b,0);let vm=marks.filter(m=>m!=null);let raw=vm.length?vm.reduce((a,b)=>a+b,0)/vm.length:0;let total=vm.length?vm.reduce((a,b)=>a+b,0):0;return {aggr,raw,total,grades,marks};}
-function showTab(n,el){if((n==0||n==3||n==4)&&!reportsUnlocked){let p=prompt("🔒 This section is protected.\nEnter password to view Dashboard / Broadsheet / Terminal Report:");if(p!==REPORT_PASS){alert("Wrong password! Access denied.");return;}reportsUnlocked=true;} [0,1,2,3,4].forEach(i=>document.getElementById('tab'+i).style.display=i==n?'block':'none');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');render()}
-function lockReports(){reportsUnlocked=false;alert("Dashboard, Broadsheet and Terminal Report locked. Password will be asked again.");showTab(1,document.querySelectorAll('.tabs button')[1]);}
-function optSelect(list,selected,idx,field){return `<select class="att" onchange="editAtt(${idx},'${field}',this.value)"><option value="">-- Select --</option>${list.map(o=>`<option ${o==selected?'selected':''}>${o}</option>`).join('')}</select>`}
-function uploadLogo(type,input){let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=function(e){logoStore[type]=e.target.result;localStorage.setItem('bomso_logos',JSON.stringify(logoStore));updateLogoStatus();renderReport();cloudSave(false);alert(type=='coat'?'Coat of Arms saved!':'School Logo saved!');};r.readAsDataURL(f);}
-function updateLogoStatus(){let c=document.getElementById('coatStatus');if(c)c.innerText=logoStore.coat?'✅ Uploaded':'Not uploaded yet';let l=document.getElementById('logoStatus');if(l)l.innerText=logoStore.logo?'✅ Uploaded':'Not uploaded yet';let tc=document.getElementById('topCoat');if(tc&&logoStore.coat){tc.src=logoStore.coat;tc.style.display='block';}let tl=document.getElementById('topLogo');if(tl&&logoStore.logo){tl.src=logoStore.logo;tl.style.display='block';}let lc=document.getElementById('loginCoat');if(lc&&logoStore.coat){lc.src=logoStore.coat;lc.style.display='inline-block';}let ll=document.getElementById('loginLogo');if(ll&&logoStore.logo){ll.src=logoStore.logo;ll.style.display='inline-block';}let wm=document.getElementById('watermarkImg');if(wm&&logoStore.logo){wm.src=logoStore.logo;wm.style.display='block';}let wmUrl=logoStore.logo||'bomso-logo.png';document.querySelectorAll('.report').forEach(r=>r.style.setProperty('--wm-url',`url("${wmUrl}")`));}
-function saveMeta(){metaStore.vac=document.getElementById('vacDate').value;metaStore.reopen=document.getElementById('reopenDate').value;metaStore.year=document.getElementById('repYear').value;metaStore.academicYear=metaStore.year;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ay=document.getElementById('academicYear');if(ay)ay.value=metaStore.year;renderReport();cloudSave(false);}
-function loadMeta(){if(metaStore.vac)document.getElementById('vacDate').value=metaStore.vac;if(metaStore.reopen)document.getElementById('reopenDate').value=metaStore.reopen;if(metaStore.year)document.getElementById('repYear').value=metaStore.year;if(metaStore.promo)document.getElementById('promoStatus').value=metaStore.promo;if(metaStore.tel)document.getElementById('headTel').value=metaStore.tel;}
-function exportBroadsheetCSV(){let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let rows=[['S#','NAME',...BROAD_SUBJECTS.flatMap(s=>[s.code+' MARK',s.code+' GRADE']),'TOTAL','AGGR','RawScore','POSITION']];names.forEach((name,i)=>{let sum=learnerSummary(cls,term,name);let flat=BROAD_SUBJECTS.map((s,j)=>[sum.marks[j]==null?'':sum.marks[j].toFixed(1),sum.grades[j]==null?'':sum.grades[j]]).flat();rows.push([i+1,name,...flat,sum.total.toFixed(1),sum.aggr,sum.raw.toFixed(1),getBroadPosition(cls,term,name)]);});let csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Broadsheet-${cls}-${term}.csv`;a.click();}
-function searchLearnerGlobal(){let q=(document.getElementById('globalSearch').value||'').trim().toLowerCase();let box=document.getElementById('globalResult');if(q.length<2){box.innerHTML='<span style="color:#888">Type at least 2 letters...</span>';return;}let term=document.getElementById('term').value;let found=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{if(d[1].toLowerCase().includes(q)){let s=learnerSummary(cls,term,d[1]);if(s.aggr>0)found.push({cls,name:d[1],...s,pos:getBroadPosition(cls,term,d[1])});}});});if(!found.length){box.innerHTML='No learner found with marks yet for '+term;return;}box.innerHTML=found.map(f=>`<div style="border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:8px"><b>${f.name}</b> - ${f.cls} - ${term} &nbsp; | &nbsp; AGGR: <b>${f.aggr}</b> &nbsp; | &nbsp; POSITION: <b>${f.pos}</b> &nbsp; | &nbsp; TOTAL: ${f.total.toFixed(1)} &nbsp; | &nbsp; AVG: ${f.raw.toFixed(1)}<br><button class="btn green" onclick="sendWhatsApp('${f.name.replace(/'/g,"")}','${f.cls}','${f.aggr}','${f.pos}','${f.total.toFixed(1)}')">💬 Send Result on WhatsApp</button></div>`).join('');}
-function sendWhatsApp(name,cls,aggr,pos,total){let term=document.getElementById('term').value;let year=document.getElementById('academicYear').value;let msg=`Hello, this is BOMSO M/A JHS.\n\n${name} - ${cls} - ${term} ${year}\nSCORE: ${total} / 1000\nBEST SIX AGGREGATE: ${aggr}\nPOSITION: ${pos}\n\nPlease contact the school for full Terminal Report.\nThank you.`;window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
-function sendWhatsAppCurrent(){let name=document.getElementById('repLearner').value;let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let s=learnerSummary(cls,term,name);sendWhatsApp(name,cls,s.aggr,getBroadPosition(cls,term,name),s.total.toFixed(1));}
-function renderDashboard(){let term=document.getElementById('term').value;let all=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{let s=learnerSummary(cls,term,d[1]);if(s.aggr>0)all.push({cls,name:d[1],...s});});});let totalLearners=DATA.length;let pass=all.filter(x=>x.aggr<=30).length;let pct=all.length?((pass/all.length)*100).toFixed(1):'0.0';document.getElementById('dashTotal').innerText=totalLearners;document.getElementById('dashClasses').innerText=classes.length;document.getElementById('dashPass').innerText=pct+'%';let sorted=[...all].sort((a,b)=>(a.aggr-b.aggr)||(b.raw-a.raw));document.getElementById('dashBestLearner').innerText=sorted.length?sorted[0].name+' ('+sorted[0].cls+' - '+sorted[0].aggr+')':'-';let byClass=classes.map(cls=>{let list=all.filter(x=>x.cls==cls);let p=list.filter(x=>x.aggr<=30).length;let pc=list.length?((p/list.length)*100):0;return {cls,total:DATA.filter(d=>d[0]==cls).length,withMarks:list.length,pass:p,pct:pc};});let bestClass=[...byClass].sort((a,b)=>b.pct-a.pct)[0];document.getElementById('dashBestClass').innerText=bestClass?bestClass.cls+' - '+bestClass.pct.toFixed(1)+'%':'-';document.getElementById('dashByClass').innerHTML=byClass.map(b=>`<div style="margin-bottom:10px"><b>${b.cls}</b> - ${b.pass}/${b.withMarks} passed - ${b.pct.toFixed(1)}%<div class="barChart"><div style="width:${b.pct}%"></div></div></div>`).join('');document.getElementById('dashTop10').innerHTML=sorted.slice(0,10).map((x,i)=>`<div style="padding:6px;border-bottom:1px solid #eee"><b>${i+1}.</b> ${x.name} - ${x.cls} - AGGR <b>${x.aggr}</b> - AVG ${x.raw.toFixed(1)} <button class="btn green" style="padding:4px 8px;font-size:11px" onclick="sendWhatsApp('${x.name.replace(/'/g,"")}','${x.cls}','${x.aggr}','${getBroadPosition(x.cls,term,x.name)}','${x.total.toFixed(1)}')">💬 WhatsApp</button></div>`).join('')||'No marks yet';let bd=document.getElementById('broadDate');if(bd)bd.innerText=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
-function render(){
-  let rows=getRows();
-  let q=(document.getElementById('search').value||'').toLowerCase();
-  let filtered=rows.map((r,i)=>({...r,_idx:i})).filter(r=>r.name.toLowerCase().includes(q));
-  let calc=filtered.map(r=>{let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);let m50=ttl/2;let e50=(+r.exm||0)/2;let all=m50+e50;return {...r,ttl,m50,e50,all}});
-  let sorted=[...calc].sort((a,b)=>b.all-a.all);let posMap={};
-  sorted.forEach((r,i)=>{if(i>0&&r.all==sorted[i-1].all)posMap[r._idx]=posMap[sorted[i-1]._idx];else posMap[r._idx]=i+1});
-  document.getElementById('title').innerText='Total: '+rows.length+' '+document.getElementById('cls').value+' - '+document.getElementById('subj').value+' - '+document.getElementById('term').value;
-  document.getElementById('tbody').innerHTML=calc.map((r,idx)=>{
-    let g=grade(r.all);let pos=posMap[r._idx];let suffix2=pos==1?'st':pos==2?'nd':pos==3?'rd':'th';
-    return `<tr><td>${idx+1}</td><td class="name"><input class="nameIn" value="${r.name}" onchange="editName(${r._idx},this)"></td><td><select onchange="editSex(${r._idx},this.value)"><option ${r.sex=='M'?'selected':''}>M</option><option ${r.sex=='F'?'selected':''}>F</option></select></td>
-    <td><input class="cell" type="number" min="0" max="30" value="${r.ind}" oninput="edit(${r._idx},'ind',this)" onblur="render()"></td>
-    <td><input class="cell" type="number" min="0" max="20" value="${r.grp}" oninput="edit(${r._idx},'grp',this)" onblur="render()"></td>
-    <td><input class="cell" type="number" min="0" max="30" value="${r.cls}" oninput="edit(${r._idx},'cls',this)" onblur="render()"></td>
-    <td><input class="cell" type="number" min="0" max="20" value="${r.pro}" oninput="edit(${r._idx},'pro',this)" onblur="render()"></td>
-    <td id="ttl-${r._idx}">${r.ttl}</td><td id="m50-${r._idx}">${r.m50.toFixed(1)}</td>
-    <td><input class="cell" type="number" min="0" max="100" value="${r.exm}" oninput="edit(${r._idx},'exm',this)" onblur="render()"></td>
-    <td id="e50-${r._idx}">${r.e50.toFixed(1)}</td><td><b id="all-${r._idx}">${r.all.toFixed(1)}</b></td>
-    <td id="pos-${r._idx}">${pos}${suffix2}</td><td id="grade-${r._idx}">${g[0]}</td><td id="rem-${r._idx}">${g[1]}</td></tr>`}).join('');
-  let attRows=getAtt();
-  document.getElementById('attTitle').innerText=document.getElementById('cls').value+' - '+document.getElementById('term').value;
-  document.getElementById('attBody').innerHTML=attRows.map((r,i)=>`<tr><td>${i+1}</td><td class="name">${r.name}</td><td><input class="cell" style="width:70px" type="number" min="0" max="90" placeholder="e.g. 23" value="${r.att}" oninput="if(this.value>90)this.value=90;editAtt(${i},'att',this.value)"></td><td>${optSelect(OPTS.conduct,r.conduct,i,'conduct')}</td><td>${optSelect(OPTS.attitude,r.attitude,i,'attitude')}</td><td>${optSelect(OPTS.interest,r.interest,i,'interest')}</td><td>${optSelect(OPTS.remarks,r.remarks,i,'remarks')}</td></tr>`).join('');
-  let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;
-  let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);
-  document.getElementById('broadTitle').innerText=cls+' - '+term+' - Roll: '+names.length;
-  let broadData=names.map(name=>{
-    let marks=[];let grades=[];
-    BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,name);marks.push(m?m.total:null);grades.push(m?beceGrade(m.total):null);});
-    let validGrades=grades.filter(g=>g!=null).sort((a,b)=>a-b);
-    let best6=validGrades.slice(0,6);let aggr=best6.length?best6.reduce((a,b)=>a+b,0):0;
-    let validMarks=marks.filter(m=>m!=null);let raw=validMarks.length?validMarks.reduce((a,b)=>a+b,0)/validMarks.length:0;
-    return {name,marks,grades,aggr,raw,total:aggr};
-  });
-  let ranked=[...broadData].sort((a,b)=> (a.aggr-b.aggr) || (b.raw-a.raw));
-  let posMapB={}; ranked.forEach((r,i)=>{if(i>0&&r.aggr==ranked[i-1].aggr&&r.raw==ranked[i-1].raw)posMapB[r.name]=posMapB[ranked[i-1].name];else posMapB[r.name]=i+1;});
-  document.getElementById('broadBody').innerHTML=broadData.map((r,i)=>{
-    let cells=r.marks.map((m,j)=>{let g=r.grades[j];return `<td>${m==null?'-':m.toFixed(1)}</td><td class="gradeCell">${g==null?'-':g}</td>`}).join('');
-    return `<tr><td>${i+1}</td><td class="name">${r.name}</td>${cells}<td><b>${r.total}</b></td><td><b>${r.aggr}</b></td><td>${r.raw.toFixed(1)}</td><td><b>${posMapB[r.name]}</b></td></tr>`}).join('');
-  let passCount=broadData.filter(r=>r.aggr>0&&r.aggr<=30).length;
-  let pct=broadData.length?((passCount/broadData.length)*100).toFixed(1):'0.0';
-  document.getElementById('overallPass').innerText=`Overall % Pass by AGGR 30 or Better: ${pct}% (${passCount} / ${broadData.length})`;
-  document.getElementById('gradePassBody').innerHTML=BROAD_SUBJECTS.map(s=>{
-    let counts=[0,0,0,0,0,0,0,0,0];
-    broadData.forEach(r=>{let idx=BROAD_SUBJECTS.indexOf(s);let g=r.grades[idx];if(g!=null)counts[g-1]++;});
-    let pass=counts.slice(0,6).reduce((a,b)=>a+b,0);
-    return `<tr><td class="name">${s.full}</td>${counts.map(c=>`<td>${c}</td>`).join('')}<td><b>${pass}</b></td></tr>`}).join('');
-  let sel=document.getElementById('repLearner');if(sel.options.length==0||sel.dataset.cls!=cls){sel.dataset.cls=cls;sel.innerHTML=rows.map(r=>`<option>${r.name}</option>`).join('');}
-  loadMeta(); updateLogoStatus(); renderReport(); renderDashboard();
+function unsnap(s){
+if(!s||!s.DATA)return;
+DATA.length=0;
+s.DATA.forEach(d=>DATA.push(d));
+if(s.store)store=s.store;
+if(s.attStore)attStore=s.attStore;
+if(s.blankSlots)blankSlots=s.blankSlots;
+if(s.archiveStore)archiveStore=s.archiveStore;
+if(s.promoHistory)promoHistory=s.promoHistory;
+if(s.metaStore)metaStore=s.metaStore;
+if(s.year){metaStore.year=s.year;metaStore.academicYear=s.year;}
 }
-function buildOneReport(name){
-  let cls=document.getElementById('cls').value;let term=document.getElementById('term').value;let year=metaStore.year||document.getElementById('repYear').value||'2026/2027';
-  let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let rollNo=names.indexOf(name)+1;
-  let attRows=getAtt();let a=attRows.find(x=>x.name==name)||{};
-  let rowsHtml='';let totalScore=0;let allGrades=[];
-  let coreGrades=[];let otherGrades=[];
-  REP_SUBJECTS.forEach(sub=>{
-    let s=getScoreFor(cls,sub,term,name);
-    let c50=s?s.class50:0, e50=s?s.exam50:0, tot=s?s.total:0; totalScore+=tot;
-    let g=s?beceGrade(tot):null; if(g)allGrades.push(g);
-    let pos=getSubjectPosition(cls,sub,term,name);
-    rowsHtml+=`<tr><td style="text-align:left">${REP_LABEL[sub]}</td><td>${s?c50.toFixed(1):'0'}</td><td>${s?e50.toFixed(1):'0'}</td><td><b>${s?tot.toFixed(1):'0'}</b></td><td>${s?pos:'-'}</td><td>${g==null?'-':g}</td><td>${g==null?'-':gradeRemark(g)}</td></tr>`;
-    if(["English Language","Mathematics","Integrated Science","Social Studies"].includes(sub)){if(g)coreGrades.push(g);} else {if(g)otherGrades.push(g);}
-  });
-  let sortedGrades=[...allGrades].sort((a,b)=>a-b);let aggr=sortedGrades.slice(0,6).reduce((a,b)=>a+b,0);
-  let coreSum=coreGrades.reduce((a,b)=>a+b,0);let best2=[...otherGrades].sort((a,b)=>a-b).slice(0,2).reduce((a,b)=>a+b,0);
-  let corePlus2=coreGrades.length==4?coreSum+best2:'-';
-  let overallPos=getBroadPosition(cls,term,name);
-  let termLabel=document.getElementById('term').value;let termNum=termLabel.replace('Term ','');
-  let vac=metaStore.vac||'23RD JULY, 2026';let reopen=metaStore.reopen||'8TH SEPTEMBER, 2026';let promo=metaStore.promo||'PROMOTED TO BS8';let tel=metaStore.tel||'................';
-  let coatImg=logoStore.coat?`<img src="${logoStore.coat}">`:`<img src="ghana-coat.png" onerror="this.style.display='none'">`;
-  let schoolImg=logoStore.logo?`<img src="${logoStore.logo}">`:`<img src="bomso-logo.png" onerror="this.style.display='none'">`;
-  let wmUrl=logoStore.logo||'bomso-logo.png';
-  return `<div class="report" style="--wm-url:url('${wmUrl}')">
-  <div class="repHead">
-    <div>${coatImg}</div>
-    <div class="mid"><h2>GHANA EDUCATION SERVICE</h2><h3>BOMSO M/A JHS</h3><h4>OFORRIKROM-MUNICIPAL</h4><h5>STUDENT'S TERMINAL REPORT</h5></div>
-    <div>${schoolImg}</div>
-  </div>
-  <div class="repMeta"><table><tr><td>NAME OF STUDENT:</td><td style="border-bottom:1px solid #000"><b>${name}</b></td><td>CLASS:</td><td style="border-bottom:1px solid #000"><b>${cls}</b></td></tr>
-  <tr><td>TERM:</td><td style="border-bottom:1px solid #000"><b>${termNum}</b></td><td>YEAR:</td><td style="border-bottom:1px solid #000"><b>${year}</b></td></tr>
-  <tr><td>No. ON ROLL:</td><td style="border-bottom:1px solid #000"><b>${rollNo}</b></td><td>POSITION:</td><td style="border-bottom:1px solid #000"><b>${overallPos}</b></td></tr>
-  <tr><td>VACATION DATE:</td><td style="border-bottom:1px solid #000"><b>${vac}</b></td><td>RE-OPENING DATE:</td><td style="border-bottom:1px solid #000"><b>${reopen}</b></td></tr></table></div>
-  <table class="repTable"><tr><th style="text-align:left">SUBJECT</th><th>CLASS<br>50</th><th>EXAMS<br>50</th><th>TOTAL<br>100%</th><th>POSITION</th><th>GRADE</th><th>REMARKS</th></tr>${rowsHtml}</table>
-  <div class="repFoot"><table>
-  <tr><td>SCORE:</td><td>${totalScore.toFixed(1)} &nbsp; OUT OF 1000</td><td>ATTENDANCE:</td><td>${a.att||'____'}</td></tr>
-  <tr><td>BEST SIX SUBJECTS AGGREGATE:</td><td>${aggr}</td><td>INTEREST:</td><td>${(a.interest||'').toUpperCase()||'____'}</td></tr>
-  <tr><td>THE 4 CORE + 2 BEST SUBJECTS:</td><td>${corePlus2} &nbsp; out of ____</td><td>ATTITUDE:</td><td>${(a.attitude||'').toUpperCase()||'____'}</td></tr>
-  <tr><td colspan="4">Class Teacher's Remark : <b>${(a.remarks||'').toUpperCase()||'___________________________________________'}</b> &nbsp; &nbsp; HEADTEACHER'S SIGNATURE: ________________</td></tr>
-  </table></div>
-  <div class="repBottom"><div><b>${termLabel.toUpperCase()} ${year} REPORT</b><br>ANY ERASURE RENDER THIS INVALID</div><div><b>PROMOTION STATUS:</b> ${promo}</div><div><b>GRADE INTERPRETATION</b><br>1=HIGHEST &nbsp; 4=HIGH AVERAGE &nbsp; 7=LOW<br>2=HIGHER &nbsp; 5=AVERAGE &nbsp; 8=LOWER<br>3=HIGH &nbsp; 6=LOW AVERAGE &nbsp; 9=LOWEST</div><div><b>CLASS/FORM TEACHER'S TEL No.</b><br>${tel}</div></div>
-  <div style="text-align:right;margin-top:10px;font-size:11px;line-height:1.2"><b>HEADTEACHER</b><br>BOMSO M/A JHS<br>P. O. BOX 12852,<br>KUMASI<br>DATE: _______________</div>
-  </div>`;
+function pushToFirebase(){
+if(!firebaseReady)return;
+try{firebase.database().ref('bomso/main').set(snap());let el=document.getElementById('cloudStatus');if(el&&loggedIn)el.innerText='Saved to Firebase - '+new Date().toLocaleTimeString();}catch(e){console.log(e);}
 }
-function renderReport(){let name=document.getElementById('repLearner').value;if(!name){let rows=getRows();name=rows[0]?.name;}if(!name)return;document.getElementById('reportArea').innerHTML=buildOneReport(name);document.getElementById('printAllArea').innerHTML='';}
-function prevLearner(){let sel=document.getElementById('repLearner');if(sel.selectedIndex>0){sel.selectedIndex--;renderReport();}}
-function nextLearner(){let sel=document.getElementById('repLearner');if(sel.selectedIndex<sel.options.length-1){sel.selectedIndex++;renderReport();}}
-function printOne(){document.getElementById('printAllArea').innerHTML='';window.print();}
-function printAll(){let cls=document.getElementById('cls').value;let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);document.getElementById('printAllArea').innerHTML='<div class="printAll">'+names.map(n=>buildOneReport(n)).join('')+'</div>';document.getElementById('reportArea').innerHTML='';setTimeout(()=>window.print(),300);}
-function edit(i,f,el){let max=MAX[f];let v=el.value;if(v===''||v==null){v='';}else{v=Number(v);if(v<0){v=0;el.value=0;}if(v>max){v=max;el.value=max;el.classList.add('over');setTimeout(()=>el.classList.remove('over'),600);}}let rows=getRows();rows[i][f]=v;localStorage.setItem('bomso_v2',JSON.stringify(store));let r=rows[i];let ttl=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);let m50=ttl/2;let e50=(+r.exm||0)/2;let all=m50+e50;let g=grade(all);let ttlEl=document.getElementById('ttl-'+i);if(ttlEl)ttlEl.innerText=ttl;let mEl=document.getElementById('m50-'+i);if(mEl)mEl.innerText=m50.toFixed(1);let eEl=document.getElementById('e50-'+i);if(eEl)eEl.innerText=e50.toFixed(1);let aEl=document.getElementById('all-'+i);if(aEl)aEl.innerText=all.toFixed(1);let gEl=document.getElementById('grade-'+i);if(gEl)gEl.innerText=g[0];let rEl=document.getElementById('rem-'+i);if(rEl)rEl.innerText=g[1];}
-function editAtt(i,f,v){let rows=getAtt();rows[i][f]=v;localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);}
-function editName(i,el){let rows=getRows();rows[i].name=el.value.toUpperCase();save(false);}
-function editSex(i,v){let rows=getRows();rows[i].sex=v;save(false);}
-function addLearner(){let rows=getRows();let n=prompt('Enter learner full name:');if(!n)return;let s=prompt('Sex M/F:','F');rows.push({name:n.toUpperCase(),sex:(s||'F').toUpperCase(),ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();}
-function save(show=true){cloudSave(show);}
-function saveAttitude(){localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);alert('Attitude Saved for '+document.getElementById('cls').value+'!');}
-function syncNames(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();let old=store[k]||[];let map={};old.forEach(r=>map[r.name]=r);store[k]=list.map(d=>map[d[1]]||{name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''});save(false);render();alert('Names synced from '+c);}
-let sel=document.getElementById('cls');sel.innerHTML=classes.map(c=>`<option>${c}</option>`).join('');buildAcademicYears();initCloud();render();
-if(sessionStorage.getItem('bomso_loggedin')){document.getElementById('loginOverlay').style.display='none';}
+function pullFromFirebase(){
+if(!firebaseReady)return;
+firebase.database().ref('bomso/main').once('value').then(function(ss){
+let v=ss.val();
+if(v&&v.DATA&&v.DATA.length){
+let curLen=DATA.length;
+let hasMarks=false;try{hasMarks=Object.keys(store||{}).some(k=> (store[k]||[]).some(r=>r.ind!==''||r.exm!==''));}catch(e){}
+if(!hasMarks){unsnap(v);rebuildClasses();document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');buildAcademicYears();render();let el=document.getElementById('cloudStatus');if(el)el.innerText='Loaded from Firebase - '+v.when;}
+}
+}).catch(function(e){console.log(e);});
+}
+function isOld(cls){return String(cls||'').indexOf('OLD STUDENTS')===0;}
+function activeClasses(){return [...new Set(DATA.filter(d=>!isOld(d[0])).map(d=>d[0]))];}
+function rebuildClasses(){classes=activeClasses();['JHS 1A','JHS 1B','JHS 1C','JHS 2A','JHS 2B','JHS 2C','JHS 3A','JHS 3B','JHS 3C'].forEach(c=>{if(!classes.includes(c))classes.push(c);});}
+let locked=false;let _top10=[];let viewingArchive=null;let savedBeforeArchive=null;
+function blockIfArchive(){if(viewingArchive){alert('READ ONLY — You are viewing Archive '+viewingArchive+'. Press Exit Archive on the red banner to go back.');return true;}return false;}
+function printBroadsheet(){document.body.classList.remove('printing-report');document.body.classList.add('printing-broadsheet');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing-broadsheet'),500)},50);}
+function toggleLock(){locked=!locked;alert(locked?'Reports LOCKED':'Reports UNLOCKED');}
+function cloudSave(m){if(viewingArchive){if(m)alert('READ ONLY — Archive view. Press Exit Archive first.');return;}try{localStorage.setItem('bomso_v2',JSON.stringify(store));localStorage.setItem('bomso_att',JSON.stringify(attStore));localStorage.setItem('bomso_meta',JSON.stringify(metaStore));localStorage.setItem('bomso_logos',JSON.stringify(logoStore));localStorage.setItem('bomso_blanks',JSON.stringify(blankSlots));localStorage.setItem('bomso_archive',JSON.stringify(archiveStore));localStorage.setItem('bomso_promotion_history',JSON.stringify(promoHistory));}catch(e){alert('Save error: '+e.message);return;}pushToFirebase();if(m)alert('Saved! Local + Firebase');}
+function saveDATA(){if(viewingArchive)return;try{localStorage.setItem('bomso_data_all',JSON.stringify(DATA));localStorage.setItem('bomso_data_promoted',JSON.stringify(DATA));}catch(e){}pushToFirebase();}
+function sortClassInDATA(cls){let mine=DATA.filter(d=>d[0]==cls).sort((a,b)=>a[1].localeCompare(b[1]));let others=DATA.filter(d=>d[0]!=cls);DATA=others.concat(mine);}
+function nextYear(y){let m=String(y||'').match(/(\d{4})\s*\/\s*(\d{4})/);if(!m)return y;return (parseInt(m[1],10)+1)+'/'+(parseInt(m[2],10)+1);}
+function saveBlanks(){if(viewingArchive)return;try{localStorage.setItem('bomso_blanks',JSON.stringify(blankSlots));}catch(e){}pushToFirebase();}
+function saveArchiveStore(){try{localStorage.setItem('bomso_archive',JSON.stringify(archiveStore));}catch(e){}pushToFirebase();}
+function savePromoHistory(){try{localStorage.setItem('bomso_promotion_history',JSON.stringify(promoHistory));}catch(e){}pushToFirebase();}
+function renderPromoHistory(){let el=document.getElementById('promoHistoryArea');if(!el)return;if(!promoHistory.length){el.innerHTML='<b>Promotion History:</b> No promotions yet. Start year is '+(metaStore.year||'');return;}let h='<b>Promotion History — '+promoHistory.length+' saved:</b><br>';promoHistory.forEach((bk,i)=>{h+=(i+1)+'. '+(bk.from||bk.year||'')+' to '+(bk.to||nextYear(bk.year||''))+' — '+(bk.when||'')+'<br>';});h+='<b>Start year:</b> '+(promoHistory[0].from||promoHistory[0].year||'')+' | <b>Current:</b> '+(metaStore.year||'');el.innerHTML=h;}
+function refreshArchiveSelect(){let s=document.getElementById('archiveYear');if(!s)return;let years=Object.keys(archiveStore).sort();let cur=s.value;s.innerHTML='<option value="">-- Select past year --</option>'+years.map(y=>'<option>'+y+'</option>').join('');if(cur&&archiveStore[cur])s.value=cur;}
+function enterArchiveView(y){
+let a=archiveStore[y];
+if(!a){alert('No archive for '+y);return;}
+if(viewingArchive===y){showTab(1,null);return;}
+if(viewingArchive&&savedBeforeArchive){exitArchiveSilent();}
+savedBeforeArchive=snap();
+DATA.length=0;
+a.DATA.forEach(d=>DATA.push(d));
+store=cp(a.store||{});
+attStore=cp(a.attStore||{});
+blankSlots=cp(a.blankSlots||{});
+metaStore.year=y;
+metaStore.academicYear=y;
+viewingArchive=y;
+rebuildClasses();
+document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
+document.getElementById('archiveBanner').style.display='block';
+document.getElementById('archiveBannerYear').innerText=y;
+let sel=document.getElementById('repLearner');
+if(sel)sel.dataset.cls='';
+buildAcademicYears();
+render();
+showTab(1,null);
+}
+function exitArchiveSilent(){
+if(!savedBeforeArchive)return;
+unsnap(savedBeforeArchive);
+viewingArchive=null;
+savedBeforeArchive=null;
+document.getElementById('archiveBanner').style.display='none';
+rebuildClasses();
+document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
+if(document.getElementById('term'))document.getElementById('term').value='Term 1';
+}
+function exitArchive(){if(!viewingArchive)return;let y=viewingArchive;exitArchiveSilent();buildAcademicYears();let sel=document.getElementById('repLearner');if(sel)sel.dataset.cls='';render();alert('Back to Current Year. Archive '+y+' was NOT changed.');}
+function viewArchive(){let y=document.getElementById('archiveYear').value;let box=document.getElementById('archiveArea');if(!y){box.innerHTML='Select a past year first.';return;}let a=archiveStore[y];if(!a){box.innerHTML='No archive for '+y;return;}box.innerHTML='<b>Opening Archive: '+y+'</b> — Saved: '+(a.when||'')+' — Learners: '+a.DATA.length+'<br>All tabs will now show '+y+' data.';enterArchiveView(y);}
+function restoreArchive(){
+let y=document.getElementById('archiveYear').value;
+if(!y){alert('Select a past year first');return;}
+if(!confirm('Restore '+y+' as current year? Current year will first be saved as archive. Continue?'))return;
+let cur;
+if(viewingArchive&&savedBeforeArchive){cur=savedBeforeArchive.year;}
+else{cur=metaStore.year||document.getElementById('academicYear').value||'2026/2027';}
+let curData,curStore,curAtt;
+if(viewingArchive&&savedBeforeArchive){curData=savedBeforeArchive.DATA;curStore=savedBeforeArchive.store;curAtt=savedBeforeArchive.attStore;}
+else{curData=DATA;curStore=store;curAtt=attStore;}
+if(cur!==y){
+let tmp=snap();
+tmp.DATA=cp(curData);
+tmp.store=cp(curStore);
+tmp.attStore=cp(curAtt);
+archiveStore[cur]=tmp;
+}
+let a=archiveStore[y];
+viewingArchive=null;
+savedBeforeArchive=null;
+document.getElementById('archiveBanner').style.display='none';
+DATA.length=0;
+a.DATA.forEach(d=>DATA.push(d));
+store=cp(a.store||{});
+attStore=cp(a.attStore||{});
+blankSlots={};
+metaStore.year=y;
+metaStore.academicYear=y;
+localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
+rebuildClasses();
+document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
+document.getElementById('term').value='Term 1';
+saveDATA();
+saveBlanks();
+saveArchiveStore();
+cloudSave(false);
+buildAcademicYears();
+refreshArchiveSelect();
+let sel=document.getElementById('repLearner');
+if(sel)sel.dataset.cls='';
+render();
+alert('Restored '+y+' as current year.');
+}
+const CONDUCT_OPTIONS=["Respectful & Humble: Treats teachers and peers with courtesy and good manners.","Calm & Approachable: Maintains composure during group work and handles conflicts peacefully.","Helpful & Cooperative: Consistently assists around the classroom and follows school rules.","Disciplined & Obedient: Obeys school rules, follows instructions promptly and shows self-control.","Honest & Trustworthy: Tells the truth, returns lost items and can be trusted with responsibilities.","Punctual & Responsible: Comes to school on time, completes tasks and takes care of learning materials.","Developing Conduct: Needs to show more restraint, obey instructions promptly, and avoid disruptive behavior."];
+const ATTITUDE_OPTIONS=["Positive & Enthusiastic: An eager learner who participates actively in class discussions.","Hard-working & Committed: Strives to reach full potential and takes pride in daily tasks.","Independent & Resourceful: Uses initiative to handle classroom activities and solve problems.","Curious & Inquisitive: Asks thoughtful questions and shows eagerness to learn new things.","Confident & Expressive: Speaks boldly, shares ideas freely and presents work with confidence.","Persevering & Resilient: Keeps trying even when work is difficult and does not give up easily.","Not Serious / Needs Focus: Requires more consistency, better attention span, and greater drive toward classwork."];
+const INTEREST_OPTIONS=["Subject Specifics: Shows strong aptitude and passion for Mathematics, Science, Ghanaian Language, or Computing.","Creative Arts & Music: Deeply engaged in drawing, drumming, dance, or cultural performances.","Sports & Physical Activity: Active participant in school athletics, team games, and outdoor exercises.","Reading & Storytelling: Loves reading books, telling stories and sharing ideas from books.","Environmental & Gardening: Shows interest in keeping the environment clean, planting and nature.","Leadership & Prefect Duties: Shows leadership, organises peers and takes up class responsibilities willingly.","Broadening Interests: Encouraged to explore more hands-on group projects and extracurricular activities."];
+const REMARK_OPTIONS=["80+ | An exemplary term! [Name] displays outstanding leadership, sharp critical thinking, and a remarkable attitude to learning. Keep it up!","60-79 | A very good effort this term. [Name] is polite, works well with peers, and shows steady progress in core subjects. More room for growth with increased focus.","45-59 | Shows potential but needs to participate more actively in class. With better time management and consistent homework habits, [Name] can achieve higher marks.","Below 45 | Needs significant support and closer supervision in class and at home. [Name] must improve attendance, pay attention to instructions, and seek help with core concepts."];
+function remarkForScore(avg){if(avg>=80)return REMARK_OPTIONS[0];if(avg>=60)return REMARK_OPTIONS[1];if(avg>=45)return REMARK_OPTIONS[2];return REMARK_OPTIONS[3];}
+function cleanRemark(txt,name){if(!txt)return 'SATISFACTORY';let t=txt.replace(/^\d+\+?\s*\|\s*/,'').replace(/^Below 45\s*\|\s*/,'');return t.split('[Name]').join(name);}
+function attSelect(i,field,current,options){let opts=['<option value="">-- Select --</option>'];options.forEach(o=>{opts.push('<option '+(current===o?'selected':'')+'>'+o+'</option>')});if(current&&!options.includes(current))opts.push('<option selected>'+current+'</option>');return '<select class="attSel" onchange="editAtt('+i+',\''+field+'\',this.value)">'+opts.join('')+'</select>';}
+function autoFillRemarks(){if(blockIfArchive())return;let att=getAtt();let cls=document.getElementById('cls').value,term=document.getElementById('term').value;att.forEach(r=>{let cb=calcCoreBest(cls,term,r.name);let avg=cb.totalScore/10;r.remarks=remarkForScore(avg);});localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);render();alert('Remarks auto-filled by score.');}
+function topMessage(x,term,year){return 'Hello, this is BOMSO M/A JHS.\n\n'+x.name+' - '+x.cls+' - '+term+' '+year+'\nSCORE: '+x.raw.toFixed(1)+' / 1000\nBEST SIX AGGREGATE: '+x.aggr+'\nPOSITION: '+getBroadPosition(x.cls,term,x.name)+'\n\nPlease contact the school for full Terminal Report.\nThank you.';}
+function sendTopWhatsApp(idx){let x=_top10[idx];if(!x)return;let term=document.getElementById('term').value;let year=metaStore.year||document.getElementById('academicYear').value||'2026/2027';window.open('https://wa.me/?text='+encodeURIComponent(topMessage(x,term,year)),'_blank');}
+function sendTopSMS(idx){let x=_top10[idx];if(!x)return;let term=document.getElementById('term').value;let year=metaStore.year||document.getElementById('academicYear').value||'2026/2027';window.location.href='sms:?body='+encodeURIComponent(topMessage(x,term,year));}
+const RAW=`JHS 1A|ABDUL MUMIN MAMUNATU|F
+JHS 1A|ACHEAMPONG ELVIS|M
+JHS 1A|ACQUAH BISMARK|M
+JHS 1A|ADJEI JANET|F
+JHS 1A|ADZOKO PATIENCE|F
+JHS 1A|AGBEKO EMMANUEL|M
+JHS 1A|AIKENS MILDRED|F
+JHS 1A|AKAPUNI THERESAH|F
+JHS 1A|AMENYO SARAH|F
+JHS 1A|AMOAKO EMELIA|F
+JHS 1A|AMOAKWA NYARKO ROSE|F
+JHS 1A|ANTHONY ESTHER|F
+JHS 1A|APPIAH NHYIRABA NANA|M
+JHS 1A|ARTHUR BAIDOO MICHELLE|F
+JHS 1A|ASSAN BLESSING|F
+JHS 1A|ATOBIA CINDY|F
+JHS 1A|BAIDOO CECILIA|F
+JHS 1A|BOAKYE SERWAA DOROTHY|F
+JHS 1A|BOATEMAA AUGUSTINA|F
+JHS 1A|DOVI THOMAS|M
+JHS 1A|FYNN PATRICK|M
+JHS 1A|KAKORA KEZIAH|F
+JHS 1A|KOLOG BETTY|F
+JHS 1A|KUMI TUTU WILLIAM|M
+JHS 1A|MAWULI DIVINE|M
+JHS 1A|MENSAH REBECCA|F
+JHS 1A|MOHAMMED MARIAM|F
+JHS 1A|NTI JEFFREY|M
+JHS 1A|OFOBI BRIDGET|F
+JHS 1A|OSEI BONSU MIRACLE|M
+JHS 1A|OTENG KWAKU|M
+JHS 1A|OTOO GIFTY|F
+JHS 1A|OWUSU KINGSLEY|M
+JHS 1A|OWUSUAA RICHLOVE|F
+JHS 1A|QUAINOO DAUGLAS|M
+JHS 1A|SARFO YAW BLESSING|M
+JHS 1A|TAWIA FAUSTINA|F
+JHS 1A|TEE ISREAL|M
+JHS 1A|TUMOR ESTHER|F
+JHS 1A|ZAN KOSSI SAMUEL|M
+JHS 1A|MENSAH SARIAM EMMANUELLA|F
+JHS 1B|ABOAGYE BOATENG RANSFORD|M
+JHS 1B|ACHEAMPONG MOSES|M
+JHS 1B|ADDAI KWABENA JOHN|M
+JHS 1B|ADU NKRUMAH MARVIN|M
+JHS 1B|AFFUL FLORENCE|F
+JHS 1B|AGBEMEFAH ISAIAH|M
+JHS 1B|AKANGAIBA CHRISTIAN|M
+JHS 1B|AKORLI CHRISTABEL|F
+JHS 1B|AMANKWAA HENRY|M
+JHS 1B|AMEYAA AMA|F
+JHS 1B|AMOAKO BROBBEY CHARLSE|M
+JHS 1B|AMPONSAH ELIZABETH|F
+JHS 1B|ANTWI BOAFO DERRICK|M
+JHS 1B|ASIEWEN BLESS|F
+JHS 1B|ATOBIA BENARD|M
+JHS 1B|ATTAH BEATRICE|F
+JHS 1B|BAIDOO CHRISTABEL|F
+JHS 1B|BOAMAH BERNICE|F
+JHS 1B|DANKWA SERWAA DIVIAN|F
+JHS 1B|ELOLO CREEPY MICHAEL|M
+JHS 1B|GARMAH JOSEPH|M
+JHS 1B|KISSIWAA ANGELA|F
+JHS 1B|KUSI APPIAH VICTORIA|F
+JHS 1B|MAWULI FLORENCE|F
+JHS 1B|MENSAH ENYONAM CONFIDENCE|F
+JHS 1B|NEVAME REGINA AGBRAKEY|F
+JHS 1B|NUKPETSI CHRISTIAN|M
+JHS 1B|OFOSU ANIN HAGAR|F
+JHS 1B|OSEI OWUSU PAMELA|F
+JHS 1B|OWUSU BANAHENE RAMZI|M
+JHS 1B|PETER BENTIL|M
+JHS 1B|QUAINOO WENDY|F
+JHS 1B|SARFO KWADWO CALEB J.|M
+JHS 1B|SUGWEY ERNESTINA|F
+JHS 1B|TAWIAH COMFORT|F
+JHS 1B|TIBILA DAVID|M
+JHS 1B|YAKUBU PORTIA|F
+JHS 1B|YEAMKUTUOYEL DORCAS|F
+JHS 1C|ABRAFI NANA AMA|F
+JHS 1C|ACQUAH GODLOVE|M
+JHS 1C|ADDAI CLEMENT|M
+JHS 1C|ADUSU CHRISTIAN|M
+JHS 1C|AGBEDZORFE SESHIMEY|F
+JHS 1C|AGYAPONG KWAKU|M
+JHS 1C|AKANWEY PATIENCE|F
+JHS 1C|AMENYAGLO RICHMOND|M
+JHS 1C|AMOA-YAW KODUA GOSPEL|M
+JHS 1C|AMOAKO ERNEST|M
+JHS 1C|ANOKYE GETRUDE|F
+JHS 1C|ANTWI SAMUEL|M
+JHS 1C|ASOMGEGO ABIGAIL|F
+JHS 1C|ATOBIA BEMJAMIN|M
+JHS 1C|AYINE LOVINJA|F
+JHS 1C|BANDOH JOEL|M
+JHS 1C|BOAMPONG DOMINIC|M
+JHS 1C|DOGBE KWAKU RICHARD|M
+JHS 1C|FIAKU SARAH|F
+JHS 1C|GBORNUITAH THERESAH|F
+JHS 1C|HELETSI JOEL|M
+JHS 1C|KPORDZO MABEL|F
+JHS 1C|MANU NKANSAH PETER|M
+JHS 1C|MENSAH SERIAN EMMANUELLA|F
+JHS 1C|MENYANSAH JOSHUA|M
+JHS 1C|MIKEHU MARTIN|M
+JHS 1C|NKRUMAH JOSEPH|M
+JHS 1C|OBENG GRACE|F
+JHS 1C|OPPONG RICHEL|F
+JHS 1C|OSEI ERNESTINA|F
+JHS 1C|OSEI CLEMENT|M
+JHS 1C|OWUSU ANSAH WINIFRED|F
+JHS 1C|QUAINOO DANIEL|M
+JHS 1C|QUANSAH COLLINA|F
+JHS 1C|TAKYI MAXWELL|M
+JHS 1C|TAWIAH GLORIA|F
+JHS 1C|TONYVIADZI HILDA|F
+JHS 1C|YAKUBU AISHA|F
+JHS 2A|ABEKA ALICIA PRINCESS|F
+JHS 2A|ABU-BONSRAH GEORGINA|F
+JHS 2A|ACHEAMPONG BRIDGET|F
+JHS 2A|ADABOYA BLESSING|F
+JHS 2A|ADETARIMAH SINORITA MIRIAM|F
+JHS 2A|ADOODZI CLEMENT|M
+JHS 2A|AFIWAA DORA SOGBO|F
+JHS 2A|AFRAM ANAS|M
+JHS 2A|AHUN NYAABA STEPHANIE|F
+JHS 2A|AKAKPO YAW|M
+JHS 2A|AMOAKO GODFRED|M
+JHS 2A|AMPONSAH KELVIN|M
+JHS 2A|AMUZU ZION|M
+JHS 2A|ANTWIWAA FELICIA|F
+JHS 2A|APPIAH EVA|F
+JHS 2A|ARKO CECILIA|F
+JHS 2A|ATISO JENNIFER|F
+JHS 2A|ATOBIA HENRY|M
+JHS 2A|AWUNI GRACELYN AKADIRI|F
+JHS 2A|DANQUAH BRIGHT OWUSU|M
+JHS 2A|DANSO FLORENCE|F
+JHS 2A|KWAKYE SAMUELLA|F
+JHS 2A|KYEREMATENG LORDINA OWUSUWAA|F
+JHS 2A|MENSAH FRANK CHARLES|M
+JHS 2A|MENYANSA KWAME|M
+JHS 2A|MWINFAAR MAYBEL|F
+JHS 2A|NAMALTENG THEOPHILLIA|F
+JHS 2A|NIMO AMBROSE BAFFOUR|M
+JHS 2A|NYANUBAH HUBERT PRINCE|M
+JHS 2A|OBENG MERIAM ADOM|F
+JHS 2A|OWUSU WILLIAMS PREMPEH|M
+JHS 2A|PELLINYIN EMMANUELLA|F
+JHS 2A|QUANSAH ANNABEL|F
+JHS 2A|TETTEH EVA|F
+JHS 2A|TUFFOUR-YEBOAH ADOMAA FLORENCE|F
+JHS 2B|ADASI RITA RITA|F
+JHS 2B|ADDAI VICTORIA|F
+JHS 2B|ADJOKO FAMOUS|M
+JHS 2B|ADOMOLGA PROVIDENCE|F
+JHS 2B|ADZAKLO HELENA|F
+JHS 2B|AGBOZO REDEEMER|F
+JHS 2B|AGYEI FRANCIS|M
+JHS 2B|AGYEI FAVOUR ASANTEWAA|F
+JHS 2B|AKAKPO RAYMOND|M
+JHS 2B|AKAKPO SARAPHINA|F
+JHS 2B|AKANTAME RICHMOND YAHAYA|M
+JHS 2B|AMEVI ESTHER SIMON|F
+JHS 2B|AMPOFO JAMES|M
+JHS 2B|ANDZIE ROCKSON|M
+JHS 2B|ANDZIE KELVIN|M
+JHS 2B|ANNAN DOROTHY GYAMERAH|F
+JHS 2B|ARTHUR ELIZABETH|F
+JHS 2B|ASSAH SAMUEL|M
+JHS 2B|BADAKOM ALICE|F
+JHS 2B|BENEWAA BEATRICE|F
+JHS 2B|HAMZA JERRY|M
+JHS 2B|MUSAH SEKINA|F
+JHS 2B|NAAB HANNAH|F
+JHS 2B|NAWUMBEY SEIDU|M
+JHS 2B|OFORI DANIEL|M
+JHS 2B|OFORI WAA FLORENCE|F
+JHS 2B|OSAAH MARY|F
+JHS 2B|OSMAN JIBRIL MOHAMMED|M
+JHS 2B|OTENG EMMANUEL|M
+JHS 2B|PELLINYM DANIELLA|F
+JHS 2B|SALAM MUDAT|F
+JHS 2B|SARFO NOAH|M
+JHS 2B|YIN HANNAH|F
+JHS 2B|YINTET BRIGHTINA ZOOG|F
+JHS 2C|ACHAW ACHAW|F
+JHS 2C|ADOBILA RAYMOND|M
+JHS 2C|AGYEMANG JOSEPHINE|F
+JHS 2C|AHUN STEPHAN GORMAN|M
+JHS 2C|ALINYO AGARTHA|F
+JHS 2C|AMENU JENNIFER|F
+JHS 2C|AMOAH CHARITY|F
+JHS 2C|AMOFA DENNIS|M
+JHS 2C|AMUZU ANDRANA|F
+JHS 2C|ANTHONY KINGSLEY|M
+JHS 2C|ARTHUR FAUSTINA|F
+JHS 2C|ARTHUR JONATHAN|M
+JHS 2C|BAHENSE FATI|F
+JHS 2C|BOAKYE JENNIFER|F
+JHS 2C|DOGLI CHRISTOPHER|M
+JHS 2C|ESSUMAN JEFFERY|M
+JHS 2C|FRIMPONG WENDY KYERAA|F
+JHS 2C|FRIMPONGMAA FREDA|F
+JHS 2C|GYAN COMFORT|F
+JHS 2C|MENSAH ROSE|F
+JHS 2C|MENSAH RICHMOND|M
+JHS 2C|MORTSO BERNARD|M
+JHS 2C|NYAMEKYE COMFORT FORKUO|F
+JHS 2C|OBRISI CHRIS|M
+JHS 2C|OPOKU GIDEON|M
+JHS 2C|OSEI MARGARET|F
+JHS 2C|OWUSU BERNARD TAKYI|M
+JHS 2C|SOSU DANIEL|M
+JHS 2C|TERKPER GIFTY GIFTY|F
+JHS 2C|TETTEH JESSICA KODUAH|F
+JHS 2C|TWENEBOAH KWAME KODUAH|M
+JHS 2C|WORKEDZI SAMUEL|M
+JHS 2C|YEBOAH-TUFFOUR A. FLORENCE|F
+JHS 2C|YORK STEPHEN|M
+JHS 3A|ACQUAH RUTH|F
+JHS 3A|ADARKWAH LILIAN|F
+JHS 3A|ADZOKO AMANDA|F
+JHS 3A|AFORU EMMANUELLA|F
+JHS 3A|AGOOWAH EMMANUELLA|F
+JHS 3A|AKORABOUR BLESSING|F
+JHS 3A|AMUZU GLORIA|F
+JHS 3A|APPIAH BLESSING|F
+JHS 3A|APPIAH BLESSING SERWAA|F
+JHS 3A|ATOTINGA MILDRED|F
+JHS 3A|ATSU RUTH|F
+JHS 3A|KWAMAH HERTY|F
+JHS 3A|MENSAH FELICIA|F
+JHS 3A|NAMKENA CINDY|F
+JHS 3A|NYAABA MICHELLE|F
+JHS 3A|OPPONG ELIZABETH|F
+JHS 3A|SAGOE CLARA BOATEMAA|F
+JHS 3A|SARPONG COMFORT SERWAA|F
+JHS 3A|ABUBAKARI MAXWELL|M
+JHS 3A|AGYEI PAUL|M
+JHS 3A|APPAU FRANK|M
+JHS 3A|BOADI GRIFFITH|M
+JHS 3A|BOATENG ROLAND FRIMPONG|M
+JHS 3A|BUODU JOEL BENIN DEYI|M
+JHS 3A|DOGBEY JUSTICE|M
+JHS 3A|GYASI STEPHEN|M
+JHS 3A|HIATORPE CLINTON|M
+JHS 3A|KAKORA GABRIEL|M
+JHS 3A|NUKPORFE DIVINE KWAME|M
+JHS 3A|OPOKU CHRISTIAN|M
+JHS 3A|OSEI WILLIAMS|M
+JHS 3A|OWUSU RAYMOND YEBOAH|M
+JHS 3A|YAMOAH EMMANUEL JOSEPH AFORO NKRUMAH|M
+JHS 3A|YEBOAH LIAM NANA OTENG|M
+JHS 3B|ACHIAA GEORGINA|F
+JHS 3B|ANTWI YVONNE|F
+JHS 3B|ARHINFUL EVELYN|F
+JHS 3B|AWUNI GRACE|F
+JHS 3B|DANSOWAA CHRISTIANA|F
+JHS 3B|FYNN MAVIS|F
+JHS 3B|MENSAH BLESSING|F
+JHS 3B|NARTEY GLADYS|F
+JHS 3B|NKRUMAH ESTHER ABENA|F
+JHS 3B|BOAKYE EUNICE NYANEKYE|F
+JHS 3B|ODURO MARY|F
+JHS 3B|OFORI ANITA|F
+JHS 3B|OSEI EVA|F
+JHS 3B|TUMOR SANDRA|F
+JHS 3B|AGBEKPORNU PROSPER|M
+JHS 3B|AGYEI DANIEL|M
+JHS 3B|AIDOO EMMANUEL|M
+JHS 3B|ANOKYE-AMOAKO SETH|M
+JHS 3B|BOAKYE JOSEPH ASAMOAH|M
+JHS 3B|ATTIMPAADEM GODBLESS|M
+JHS 3B|BAFFOUR KYEI ANDERSON|M
+JHS 3B|DANKWA PRINCE KUSI|M
+JHS 3B|HAGAN EMMANUEL|M
+JHS 3B|OPOKU JUNIOR APPIAH|M
+JHS 3B|OSEI GEORGE BOAMAH|M
+JHS 3B|OSEI SAMUEL|M
+JHS 3B|OWUSU CINDY BOATENG|F
+JHS 3B|TSIKATA HOPESON|M
+JHS 3B|TWENEBOAH SENIOR ATTA|M
+JHS 3B|TWUMASI WILLIAM|M
+JHS 3B|ZAN EBENEZER WISDOM|M
+JHS 3C|ACQUAH RACHEAL|F
+JHS 3C|AKOBIYA ABIGAIL|F
+JHS 3C|ANSAH ASEDA|F
+JHS 3C|ASIGBE ROSA|F
+JHS 3C|DANSO ELLEN|F
+JHS 3C|FOSU CHRISTABEL|F
+JHS 3C|MICAH VIDA|F
+JHS 3C|OSEI GEORGINA BOAMAH|F
+JHS 3C|OSEI EVELYN|F
+JHS 3C|OWUSU DIANA AMOATENG|F
+JHS 3C|SARFO SARAH AMA|F
+JHS 3C|YAABA CHRISTABEL EFFUA|F
+JHS 3C|YIRAAN PURE|F
+JHS 3C|YIRAAN PRINCE|M
+JHS 3C|ADJEI SOLOMON MAWUKOEYNA|M
+JHS 3C|AKOMEAH GIOVANNI|M
+JHS 3C|AMEVI MAXWEL|M
+JHS 3C|AMOAFUL SAMUEL|M
+JHS 3C|AMUZU ANDREWS|M
+JHS 3C|ANSAH RANSFORD|M
+JHS 3C|ARTHUR GODFRED|M
+JHS 3C|AWUTEY ERIC|M
+JHS 3C|KUDOLO FERDINAND|M
+JHS 3C|MENSAH SHADRACK|M
+JHS 3C|MUNTARI EMMANUEL|M
+JHS 3C|NDAANA ROLAND|M
+JHS 3C|NKRUMAH EMMANUEL KOJO|M
+JHS 3C|NTIAMOAH SAMUEL|M
+JHS 3C|NYAMEDEA DIVINE|M
+JHS 3C|OTOO SYLVESTER|M
+JHS 3C|POKU AKWASI|M
+JHS 3C|TAWIAH JEAL KWAKU|M`;
+let DATA=RAW.trim().split('\n').map(l=>{let p=l.split('|');return [p[0],p[1],p[2]];});
+try{let saved=localStorage.getItem('bomso_data_all');if(saved){let arr=JSON.parse(saved);if(arr&&arr.length)DATA=arr;}}catch(e){}
+let classes=[];rebuildClasses();
+let store=JSON.parse(localStorage.getItem('bomso_v2')||'{}');let attStore=JSON.parse(localStorage.getItem('bomso_att')||'{}');let metaStore=JSON.parse(localStorage.getItem('bomso_meta')||'{}');let logoStore=JSON.parse(localStorage.getItem('bomso_logos')||'{}');let blankSlots=JSON.parse(localStorage.getItem('bomso_blanks')||'{}');let archiveStore=JSON.parse(localStorage.getItem('bomso_archive')||'{}');let promoHistory=JSON.parse(localStorage.getItem('bomso_promotion_history')||'[]');
+if(!metaStore.year){metaStore.year='2026/2027';metaStore.academicYear='2026/2027';}
+if(!promoHistory.length){try{let old=localStorage.getItem('bomso_promotion_backup');if(old){let bk=JSON.parse(old);if(bk&&bk.listData)promoHistory=[bk];savePromoHistory();}}catch(e){}}
+const MAX={ind:30,grp:20,cls:30,pro:20,exm:100};const BROAD_SUBJECTS=[{code:"ENG",full:"English Language"},{code:"MATH",full:"Mathematics"},{code:"SOC",full:"Social Studies"},{code:"SCI",full:"Integrated Science"},{code:"GH LANG",full:"Asante Twi"},{code:"RME",full:"RME"},{code:"ICT",full:"Computing"},{code:"FREN",full:"French"},{code:"CAD",full:"Creative Arts"},{code:"C&T",full:"Career Technology"}];const REP_SUBJECTS=["English Language","Mathematics","Integrated Science","Creative Arts","Computing","RME","Asante Twi","Social Studies","French","Career Technology"];
+function beceGrade(m){if(m==null||m===''||isNaN(m))return null;m=+m;if(m>=90)return 1;if(m>=80)return 2;if(m>=70)return 3;if(m>=60)return 4;if(m>=55)return 5;if(m>=50)return 6;if(m>=40)return 7;if(m>=35)return 8;return 9;}function gradeRemark(g){return {1:'HIGHEST',2:'HIGHER',3:'HIGH',4:'HIGH AVERAGE',5:'AVERAGE',6:'LOW AVERAGE',7:'LOW',8:'LOWER',9:'LOWEST'}[g]||'-';}function grade(s){let g=beceGrade(s);return [g==null?'-':g,gradeRemark(g)];}function suffix(n){if(n==null||n===''||n<=0)return '-';if(n==1)return '1st';if(n==2)return '2nd';if(n==3)return '3rd';return n+'th';}
+function buildAcademicYears(){let sel=document.getElementById('academicYear');let o=[];for(let i=0;i<20;i++){let y=2025+i;o.push('<option>'+y+'/'+(y+1)+'</option>');}sel.innerHTML=o.join('');sel.value=metaStore.academicYear||metaStore.year||'2026/2027';}
+function changeAcademicYear(){if(blockIfArchive()){buildAcademicYears();return;}let v=document.getElementById('academicYear').value;metaStore.academicYear=v;metaStore.year=v;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let ry=document.getElementById('repYear');if(ry)ry.value=v;renderReport();cloudSave(false);}
+function attKey(){return document.getElementById('cls').value+'|'+document.getElementById('term').value}function getAtt(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=attKey();if(!attStore[k])attStore[k]=list.map(d=>({name:d[1],att:'',conduct:'',attitude:'',interest:'',remarks:''}));else{let have=new Set(attStore[k].map(x=>x.name));list.forEach(d=>{if(!have.has(d[1]))attStore[k].push({name:d[1],att:'',conduct:'',attitude:'',interest:'',remarks:''})});}attStore[k].sort((a,b)=>a.name.localeCompare(b.name));return attStore[k]}
+function key(){return document.getElementById('cls').value+'|'+document.getElementById('subj').value+'|'+document.getElementById('term').value}function getRows(){let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();if(!store[k])store[k]=list.map(d=>({name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''}));else{let have=new Set(store[k].map(x=>x.name));list.forEach(d=>{if(!have.has(d[1]))store[k].push({name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''})});}store[k].sort((a,b)=>a.name.localeCompare(b.name));return store[k]}
+function getScoreFor(cls,subj,term,name){let k=cls+'|'+subj+'|'+term;let a=store[k];if(!a)return null;let r=a.find(x=>x.name==name);if(!r)return null;if(r.ind===''&&r.grp===''&&r.cls===''&&r.pro===''&&r.exm==='')return null;let t=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);return {class50:t/2,exam50:(+r.exm||0)/2,total:t/2+(+r.exm||0)/2};}
+function getBroadPosition(cls,term,name){let names=DATA.filter(d=>d[0]==cls).map(d=>d[1]);let data=names.map(n=>{let g=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,n);g.push(m?beceGrade(m.total):null)});let vg=g.filter(x=>x!=null).sort((a,b)=>a-b);return {name:n,aggr:vg.length?vg.slice(0,6).reduce((a,b)=>a+b,0):0,has:vg.length>0}});let withMarks=data.filter(x=>x.has).sort((a,b)=>a.aggr-b.aggr);let map={};withMarks.forEach((r,i)=>{if(i>0&&r.aggr!==withMarks[i-1].aggr)map[r.name]=i+1;else if(i==0)map[r.name]=1;else map[r.name]=map[withMarks[i-1].name];});let v=map[name];return v==null?'-':suffix(v);}
+function learnerSummary(cls,term,name){let mk=[],gr=[];BROAD_SUBJECTS.forEach(s=>{let m=getScoreFor(cls,s.full,term,name);mk.push(m?m.total:null);gr.push(m?beceGrade(m.total):null)});let vg=gr.filter(g=>g!=null).sort((a,b)=>a-b);let aggr=vg.length?vg.slice(0,6).reduce((a,b)=>a+b,0):0;let vm=mk.filter(m=>m!=null);return {aggr,has:vg.length>0,raw:vm.length?vm.reduce((a,b)=>a+b,0)/vm.length:0,total:vm.length?vm.reduce((a,b)=>a+b,0):0,grades:gr,marks:mk,subjects:vm.length};}
+function showTab(n,el){
+let lockedTabs=[0,3,4,5];
+let names={0:'Dashboard',3:'Broadsheet Combined',4:'Terminal Report',5:'Promotion'};
+if(!loggedIn){document.getElementById('loginScreen').style.display='flex';return;}
+if(lockedTabs.indexOf(n)>=0){let p=prompt('Enter password to open '+names[n]+':');if(p!==PASS){alert('Wrong password. Access denied.');return;}}
+[0,1,2,3,4,5].forEach(i=>document.getElementById('tab'+i).style.display=i==n?'block':'none');
+document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+if(el)el.classList.add('active');
+currentTab=n;
+render();
+}
+function uploadLogo(type,input){if(blockIfArchive())return;let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=function(e){logoStore[type]=e.target.result;localStorage.setItem('bomso_logos',JSON.stringify(logoStore));updateLogoStatus();renderReport();cloudSave(false);alert(type=='coat'?'Coat saved!':'Logo saved!');};r.readAsDataURL(f);}
+function updateLogoStatus(){let c=document.getElementById('coatStatus');if(c)c.innerText=logoStore.coat?'Uploaded - saved':'Not uploaded yet';let l=document.getElementById('logoStatus');if(l)l.innerText=logoStore.logo?'Uploaded - saved':'Not uploaded yet';if(logoStore.coat){let a=document.getElementById('topCoat');if(a)a.src=logoStore.coat;let b=document.getElementById('loginCoat');if(b)b.src=logoStore.coat;}if(logoStore.logo){let a=document.getElementById('topLogo');if(a)a.src=logoStore.logo;let b=document.getElementById('loginLogo');if(b)b.src=logoStore.logo;}}
+function saveMeta(){if(blockIfArchive())return;metaStore.vac=document.getElementById('vacDate').value;metaStore.reopen=document.getElementById('reopenDate').value;metaStore.year=document.getElementById('repYear').value;metaStore.academicYear=metaStore.year;metaStore.promotion=document.getElementById('promoInput').value;metaStore.teacherTel=document.getElementById('teacherTel').value;metaStore.headTel=document.getElementById('headTel').value;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));let h=document.getElementById('telHint');if(h)h.innerText=(metaStore.teacherTel||metaStore.headTel)?'Saved - Teacher '+(metaStore.teacherTel||'-')+' | Headteacher '+(metaStore.headTel||'-'):'';renderReport();cloudSave(false);}
+function loadMeta(){if(metaStore.vac)document.getElementById('vacDate').value=metaStore.vac;if(metaStore.reopen)document.getElementById('reopenDate').value=metaStore.reopen;if(metaStore.year)document.getElementById('repYear').value=metaStore.year;if(metaStore.promotion)document.getElementById('promoInput').value=metaStore.promotion;if(metaStore.teacherTel)document.getElementById('teacherTel').value=metaStore.teacherTel;if(metaStore.headTel)document.getElementById('headTel').value=metaStore.headTel;}
+function getBroadList(){let mode=document.getElementById('broadMode').value;let term=document.getElementById('term').value;let entries=[];if(mode=='single'){let cls=document.getElementById('cls').value;DATA.filter(d=>d[0]==cls).forEach(d=>entries.push({cls:cls,name:d[1]}));}else if(mode=='jhs1'){['JHS 1A','JHS 1B','JHS 1C'].forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>entries.push({cls:cls,name:d[1]}));});}else if(mode=='jhs2'){['JHS 2A','JHS 2B','JHS 2C'].forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>entries.push({cls:cls,name:d[1]}));});}else if(mode=='jhs3'){['JHS 3A','JHS 3B','JHS 3C'].forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>entries.push({cls:cls,name:d[1]}));});}else{DATA.filter(d=>!isOld(d[0])).forEach(d=>entries.push({cls:d[0],name:d[1]}));}entries.sort((a,b)=>a.name.localeCompare(b.name));let list=entries.map(e=>{let s=learnerSummary(e.cls,term,e.name);return {cls:e.cls,name:e.name,aggr:s.aggr,has:s.has,marks:s.marks,grades:s.grades,total:s.total,raw:s.raw};});let withMarks=[...list].filter(x=>x.has).sort((a,b)=>a.aggr-b.aggr);let posMap={};withMarks.forEach((r,i)=>{if(i==0)posMap[r.cls+'|'+r.name]=1;else if(r.aggr!==withMarks[i-1].aggr)posMap[r.cls+'|'+r.name]=i+1;else posMap[r.cls+'|'+r.name]=posMap[withMarks[i-1].cls+'|'+withMarks[i-1].name];});list.forEach(r=>{r.pos=r.has?posMap[r.cls+'|'+r.name]:null;});return list;}
+function calcCoreBest(cls,term,name){let core=["English Language","Mathematics","Integrated Science","Social Studies"];let others=["Creative Arts","Computing","RME","Asante Twi","French","Career Technology"];let coreMarks=core.map(s=>{let m=getScoreFor(cls,s,term,name);return m?m.total:0});let coreGrades=core.map(s=>{let m=getScoreFor(cls,s,term,name);return m?beceGrade(m.total):9});let otherList=others.map(s=>{let m=getScoreFor(cls,s,term,name);return {subj:s,mark:m?m.total:0,grade:m?beceGrade(m.total):9}});otherList.sort((a,b)=>a.grade-b.grade||b.mark-a.mark);let best2=otherList.slice(0,2);let rawScore=coreMarks.reduce((a,b)=>a+b,0)+best2.reduce((a,b)=>a+b.mark,0);let aggr=coreGrades.reduce((a,b)=>a+b,0)+best2.reduce((a,b)=>a+b.grade,0);let totalScore=REP_SUBJECTS.reduce((sum,s)=>{let m=getScoreFor(cls,s,term,name);return sum+(m?m.total:0)},0);return {rawScore,aggr,best2,coreMarks,coreGrades,totalScore};}
+function fillBlankSlot(cls,el,sexSel){if(blockIfArchive()){el.value='';return;}let n=(el.value||'').trim().toUpperCase();if(!n)return;if(DATA.some(d=>d[0]==cls&&d[1]==n)){alert('Already exists');el.value='';return;}let sex=sexSel?sexSel.value:'F';DATA.push([cls,n,sex]);sortClassInDATA(cls);blankSlots[cls]=Math.max(0,(blankSlots[cls]||0)-1);saveBlanks();saveDATA();render();}
+function render(){let rows=getRows();let q=(document.getElementById('search').value||'').toLowerCase();let filt=rows.map((r,i)=>{let o={name:r.name,sex:r.sex,ind:r.ind,grp:r.grp,cls:r.cls,pro:r.pro,exm:r.exm,_i:i};return o;}).filter(r=>r.name.toLowerCase().includes(q));let calc=filt.map(r=>{let t=(+r.ind||0)+(+r.grp||0)+(+r.cls||0)+(+r.pro||0);return {name:r.name,sex:r.sex,ind:r.ind,grp:r.grp,cls:r.cls,pro:r.pro,exm:r.exm,_i:r._i,ttl:t,m50:t/2,e50:(+r.exm||0)/2,all:t/2+(+r.exm||0)/2}});let srt=[...calc].sort((a,b)=>b.all-a.all);let pm={};srt.forEach((r,i)=>{pm[r._i]=i==0?1:(r.all==srt[i-1].all?pm[srt[i-1]._i]:i+1)});let curCls=document.getElementById('cls').value;document.getElementById('title').innerText='Total: '+rows.length+' '+curCls+' - '+document.getElementById('subj').value+' - '+document.getElementById('term').value+((blankSlots[curCls]||0)?' + '+blankSlots[curCls]+' blank spaces':'')+(viewingArchive?' — VIEWING ARCHIVE '+viewingArchive+' (Read Only)':'');let tbodyHtml=calc.map((r,idx)=>{let g=grade(r.all);return '<tr><td>'+(idx+1)+'</td><td class="name"><input class="nameIn" value="'+r.name+'" onchange="editName('+r._i+',this)"></td><td><select onchange="editSex('+r._i+',this.value)"><option '+(r.sex=='M'?'selected':'')+'>M</option><option '+(r.sex=='F'?'selected':'')+'>F</option></select></td><td><input class="cell" type="number" value="'+r.ind+'" oninput="edit('+r._i+',\'ind\',this)" onblur="render()"></td><td><input class="cell" type="number" value="'+r.grp+'" oninput="edit('+r._i+',\'grp\',this)" onblur="render()"></td><td><input class="cell" type="number" value="'+r.cls+'" oninput="edit('+r._i+',\'cls\',this)" onblur="render()"></td><td><input class="cell" type="number" value="'+r.pro+'" oninput="edit('+r._i+',\'pro\',this)" onblur="render()"></td><td>'+r.ttl+'</td><td>'+r.m50.toFixed(1)+'</td><td><input class="cell" type="number" value="'+r.exm+'" oninput="edit('+r._i+',\'exm\',this)" onblur="render()"></td><td>'+r.e50.toFixed(1)+'</td><td><b>'+r.all.toFixed(1)+'</b></td><td>'+pm[r._i]+(pm[r._i]==1?'st':pm[r._i]==2?'nd':pm[r._i]==3?'rd':'th')+'</td><td>'+g[0]+'</td><td>'+g[1]+'</td><td><button class="btn red small" onclick="deleteLearner('+r._i+')">Delete</button></td></tr>'}).join('');let blanks=blankSlots[curCls]||0;if(blanks>0&&!q&&!viewingArchive){for(let b=0;b<blanks;b++){tbodyHtml+='<tr class="blankRow"><td>'+(rows.length+b+1)+'</td><td class="name"><input class="nameIn" placeholder="Type new Class 6 name here..." onchange="fillBlankSlot(\''+curCls+'\',this,this.parentElement.nextElementSibling.querySelector(\'select\'))"></td><td><select><option>F</option><option>M</option></select></td><td colspan="13" style="text-align:left">Blank space '+(b+1)+' / '+blanks+'</td><td>-</td></tr>';}}document.getElementById('tbody').innerHTML=tbodyHtml;let att=getAtt();document.getElementById('attTitle').innerText=curCls+' - '+document.getElementById('term').value+(viewingArchive?' — ARCHIVE '+viewingArchive:'');document.getElementById('attBody').innerHTML=att.map((r,i)=>'<tr><td>'+(i+1)+'</td><td class="name">'+r.name+'</td><td><input class="cell" value="'+(r.att||'')+'" oninput="editAtt('+i+',\'att\',this.value)" placeholder="e.g. 45/60"></td><td>'+attSelect(i,'conduct',r.conduct||'',CONDUCT_OPTIONS)+'</td><td>'+attSelect(i,'attitude',r.attitude||'',ATTITUDE_OPTIONS)+'</td><td>'+attSelect(i,'interest',r.interest||'',INTEREST_OPTIONS)+'</td><td>'+attSelect(i,'remarks',r.remarks||'',REMARK_OPTIONS)+'</td></tr>').join('');let cls=curCls,term=document.getElementById('term').value;let bl=getBroadList();let mode=document.getElementById('broadMode').value;let titleText=mode=='single'?cls+' - '+term+' - Roll: '+bl.length:mode=='jhs1'?'JHS 1 COMBINED - '+term+' - Roll: '+bl.length:mode=='jhs2'?'JHS 2 COMBINED - '+term+' - Roll: '+bl.length:mode=='jhs3'?'JHS 3 COMBINED - '+term+' - Roll: '+bl.length:'WHOLE SCHOOL COMBINED (Active Only) - '+term+' - Roll: '+bl.length;if(viewingArchive)titleText+=' — ARCHIVE '+viewingArchive;document.getElementById('broadTitle').innerText=titleText;document.getElementById('broadBody').innerHTML=bl.map((r,i)=>{let cells=r.marks.map((m,j)=>{let g=r.grades[j];return '<td>'+(m==null?'-':m.toFixed(1))+'</td><td>'+(g==null?'-':g)+'</td>'}).join('');return '<tr><td class="name">'+r.name+'</td>'+cells+'<td>'+(r.has?r.total.toFixed(1):'-')+'</td><td>'+(r.has?r.aggr:'-')+'</td><td>'+(r.has?r.raw.toFixed(1):'-')+'</td><td>'+(r.has?suffix(r.pos):'-')+'</td><td>'+r.cls+'</td></tr>'}).join('');let passCount=bl.filter(r=>r.has&&r.aggr<=30).length;let pct=bl.length?((passCount/bl.length)*100).toFixed(1):'0.0';document.getElementById('overallPass').innerText='Overall % Pass by AGGR 30 or Better: '+pct+'% ('+passCount+' / '+bl.length+')';let subjNames=["English Language","Mathematics","Social Studies","Integrated Science","Asante Twi","RME","Computing","French","Creative Arts","Career Technology"];let subjRows=subjNames.map((sn,si)=>{let counts=[0,0,0,0,0,0,0,0,0];let pass=0;bl.forEach(r=>{let g=r.grades[si];if(g!=null){counts[g-1]++;if(g<=6)pass++;}});return '<tr><td style="text-align:left">'+sn+'</td>'+counts.map(c=>'<td>'+c+'</td>').join('')+'<td><b>'+pass+'</b></td></tr>'}).join('');document.getElementById('gradesBySubject').innerHTML='<h3>GRADES & PASS BY SUBJECT</h3><table><thead><tr><th>SUBJECT</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>PASS (1-6)</th></tr></thead><tbody>'+subjRows+'</tbody></table>';document.getElementById('broadDate').innerText=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});let sel=document.getElementById('repLearner');if(sel.options.length==0||sel.dataset.cls!=cls||sel.options.length!=rows.length){sel.dataset.cls=cls;sel.innerHTML=rows.map(r=>'<option>'+r.name+'</option>').join('');}loadMeta();updateLogoStatus();refreshArchiveSelect();renderPromoHistory();renderReport();renderDashboard();}
+function renderDashboard(){let term=document.getElementById('term').value;let all=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{let s=learnerSummary(cls,term,d[1]);if(s.has)all.push({cls,name:d[1],aggr:s.aggr,raw:s.raw})})});let activeCount=DATA.filter(d=>!isOld(d[0])).length;document.getElementById('dTotal').innerText=activeCount;document.getElementById('dClasses').innerText=classes.length;let pass=all.filter(x=>x.aggr<=30).length;document.getElementById('dPass').innerText=all.length?((pass/all.length)*100).toFixed(1)+'%':'-';let best=[...all].sort((a,b)=>a.aggr-b.aggr)[0];document.getElementById('dBest').innerText=best?best.name+' ('+best.cls+' - '+best.aggr+')':'-';let byClass=classes.map(cls=>{let l=all.filter(x=>x.cls==cls);let p=l.filter(x=>x.aggr<=30).length;return {cls,total:l.length,pass:p,pct:l.length?((p/l.length)*100):0}});let bestClass=[...byClass].sort((a,b)=>b.pct-a.pct)[0];document.getElementById('dBestClass').innerText=bestClass?bestClass.cls+' - '+bestClass.pct.toFixed(1)+'%':'-';document.getElementById('dashByClass').innerHTML=byClass.map(b=>'<div><b>'+b.cls+' - '+b.pass+'/'+b.total+' passed - '+b.pct.toFixed(1)+'%</b><div class="passBar"><div style="width:'+b.pct+'%"></div></div></div>').join('');_top10=[...all].sort((a,b)=>a.aggr-b.aggr).slice(0,10);document.getElementById('dashTop10').innerHTML=_top10.map((x,i)=>'<div style="padding:6px;border-bottom:1px solid #eee">'+(i+1)+'. '+x.name+' - '+x.cls+' - AGGR '+x.aggr+' - AVG '+x.raw.toFixed(1)+' <button class="btn green" style="padding:4px 8px;font-size:11px" onclick="sendTopWhatsApp('+i+')">WhatsApp</button> <button class="btn blue" style="padding:4px 8px;font-size:11px" onclick="sendTopSMS('+i+')">SMS</button></div>').join('')||'No marks yet';}
+function searchLearnerGlobal(){let q=(document.getElementById('globalSearch').value||'').toLowerCase();let box=document.getElementById('globalResult');if(q.length<2){box.innerHTML='Type 2+ letters';return;}let term=document.getElementById('term').value;let f=[];classes.forEach(cls=>{DATA.filter(d=>d[0]==cls).forEach(d=>{if(d[1].toLowerCase().includes(q)){let s=learnerSummary(cls,term,d[1]);f.push({cls,name:d[1],aggr:s.aggr,raw:s.raw,has:s.has})}})});box.innerHTML=f.map(x=>'<div><b>'+x.name+'</b> - '+x.cls+' - AGGR '+(x.has?x.aggr:'-')+' - AVG '+x.raw.toFixed(1)+'</div>').join('')||'Not found';}
+function subjectPosition(cls,term,subj,name){let list=DATA.filter(d=>d[0]==cls).map(d=>{let s=getScoreFor(cls,subj,term,d[1]);return {name:d[1],total:s?s.total:-1}}).filter(x=>x.total>=0).sort((a,b)=>b.total-a.total);let idx=list.findIndex(x=>x.name==name);if(idx<0)return '-';let rank=1;for(let i=1;i<=idx;i++){if(list[i].total!==list[i-1].total)rank=i+1;}return suffix(rank);}
+function buildOneReport(name){let cls=document.getElementById('cls').value,term=document.getElementById('term').value;let termNum=term.replace('Term ','').trim();let year=metaStore.year||'2026/2027';let vac=metaStore.vac||'20th may,2034';let reopen=metaStore.reopen||'8TH SEPTEMBER, 2026';let promoFull=metaStore.promotion||'PROMOTED TO BS8';let promoShow=(term==='Term 3')?promoFull:'';let tTel=metaStore.teacherTel||'';let hTel=metaStore.headTel||'';let att=getAtt();let a=att.find(x=>x.name==name)||{};let classList=DATA.filter(d=>d[0]==cls);let rollNo=classList.findIndex(d=>d[1]==name)+1;let rows='';REP_SUBJECTS.forEach(sub=>{let s=getScoreFor(cls,sub,term,name);let t=s?s.total:0;let g=s?beceGrade(t):null;rows+='<tr><td style="text-align:left">'+sub+'</td><td>'+(s?s.class50.toFixed(1):'0')+'</td><td>'+(s?s.exam50.toFixed(1):'0')+'</td><td><b>'+t.toFixed(1)+'</b></td><td>'+subjectPosition(cls,term,sub,name)+'</td><td>'+(g==null?'-':g)+'</td><td>'+(g==null?'-':gradeRemark(g))+'</td></tr>'});let cb=calcCoreBest(cls,term,name);let coat=logoStore.coat?logoStore.coat:'ghana-coat.png';let logo=logoStore.logo?logoStore.logo:'bomso-logo.png';let remarkText=cleanRemark(a.remarks||'',name);return '<div class="rep"><div class="repHead"><img src="'+coat+'"><div><h2>GHANA EDUCATION SERVICE</h2><h3>BOMSO M/A JHS</h3><h4>OFORIKKROM-MUNICIPAL<br>STUDENT\'S TERMINAL REPORT</h4></div><img src="'+logo+'"></div><div class="repInfo"><div><table><tr><td>NAME OF STUDENT:</td><td>'+name+'</td></tr><tr><td>TERM:</td><td>'+termNum+'</td></tr><tr><td>No. ON ROLL:</td><td>'+rollNo+'</td></tr><tr><td>VACATION DATE:</td><td>'+vac+'</td></tr></table></div><div><table><tr><td>CLASS:</td><td>'+cls+'</td></tr><tr><td>YEAR:</td><td>'+year+'</td></tr><tr><td>POSITION:</td><td>'+getBroadPosition(cls,term,name)+'</td></tr><tr><td>RE-OPENING DATE:</td><td>'+reopen+'</td></tr></table></div></div><table class="repTable"><tr><th>SUBJECT</th><th>CLASS 50</th><th>EXAMS 50</th><th>TOTAL 100%</th><th>POSITION</th><th>GRADE</th><th>REMARKS</th></tr>'+rows+'</table><div class="repBottom"><div class="left"><b>RAW SCORE:</b> '+cb.rawScore.toFixed(1)+' OUT OF 600<br><b>BEST SIX SUBJECTS AGGREGATE:</b> '+cb.aggr+'<br><b>THE 4 CORE + 2 BEST SUBJECTS:</b> '+cb.rawScore.toFixed(1)+' out of 600<br><b>TOTAL SCORE:</b> '+cb.totalScore.toFixed(1)+' out of 1000<div class="remarkRow"><b>Class Teacher\'s Remark :</b> '+remarkText+'<br><b>HEADTEACHER\'S SIGNATURE:</b> __________________</div></div><div class="right"><b>ATTENDANCE:</b> '+(a.att||'')+'<br><b>CONDUCT:</b> '+(a.conduct||'')+'<br><b>INTEREST:</b> '+(a.interest||'')+'<br><b>ATTITUDE:</b> '+(a.attitude||'')+'</div></div><div class="repFooter"><div><b>TERM '+termNum+' '+year+' REPORT</b>ANY ERASURE RENDER THIS INVALID</div><div><b>PROMOTION STATUS:</b> '+(promoShow||'&nbsp;')+'</div><div><b>GRADE INTERPRETATION</b><div class="gradeGrid"><span>1=HIGHEST</span><span>4=HIGH AVERAGE</span><span>7=LOW</span><span>2=HIGHER</span><span>5=AVERAGE</span><span>8=LOWER</span><span>3=HIGH</span><span>6=LOW AVERAGE</span><span>9=LOWEST</span></div></div><div><b>CLASS/FORM TEACHER\'S TEL No.</b>'+(tTel||'__________________')+'</div><div><b>HEADTEACHER BOMSO M/A JHS</b>P.O. BOX 12652, KUMASI<br>Tel: '+(hTel||'__________________')+'<br>DATE: __________________</div></div></div>';}
+function renderReport(){let n=document.getElementById('repLearner').value;if(!n){let r=getRows();n=r[0]?r[0].name:null;}if(!n)return;document.getElementById('reportArea').innerHTML=buildOneReport(n);}
+function prevLearner(){let s=document.getElementById('repLearner');if(s.selectedIndex>0){s.selectedIndex--;renderReport();}}function nextLearner(){let s=document.getElementById('repLearner');if(s.selectedIndex<s.options.length-1){s.selectedIndex++;renderReport();}}function printOne(){document.body.classList.remove('printing-broadsheet');document.body.classList.add('printing-report');document.getElementById('printAllArea').innerHTML='';setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing-report'),500)},50);}function printAll(){let cls=document.getElementById('cls').value;let ns=DATA.filter(d=>d[0]==cls).map(d=>d[1]);document.getElementById('printAllArea').innerHTML=ns.map(n=>buildOneReport(n)).join('');document.getElementById('reportArea').innerHTML='';document.body.classList.remove('printing-broadsheet');document.body.classList.add('printing-report');setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('printing-report');renderReport();},500)},300);}
+function resultMessage(){let n=document.getElementById('repLearner').value,cls=document.getElementById('cls').value,term=document.getElementById('term').value;let cb=calcCoreBest(cls,term,n);return 'BOMSO M/A JHS - '+term+' Report: '+n+' ('+cls+') - Position: '+getBroadPosition(cls,term,n)+' - Best Six Aggregate: '+cb.aggr+' - Raw Score: '+cb.rawScore.toFixed(1)+' out of 600 - Total Score: '+cb.totalScore.toFixed(1)+' out of 1000';}
+function sendWhatsAppCurrent(){window.open('https://wa.me/?text='+encodeURIComponent(resultMessage()),'_blank');}
+function sendSMSCurrent(){window.location.href='sms:?body='+encodeURIComponent(resultMessage());}
+function edit(i,f,el){if(blockIfArchive()){render();return;}if(locked){alert('Locked! Press Lock Reports to unlock');return;}let v=el.value;if(v!==''){v=Number(v);let mx=MAX[f];if(v<0)v=0;if(v>mx)v=mx;el.value=v;}let rows=getRows();rows[i][f]=v;localStorage.setItem('bomso_v2',JSON.stringify(store));}
+function editAtt(i,f,v){if(blockIfArchive()){render();return;}let r=getAtt();r[i][f]=v;localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);renderReport();}function editName(i,el){if(blockIfArchive()){render();return;}let r=getRows();r[i].name=el.value.toUpperCase();save(false);}function editSex(i,v){if(blockIfArchive())return;let r=getRows();r[i].sex=v;save(false);}
+function addLearner(){if(blockIfArchive())return;let cls=document.getElementById('cls').value;let n=prompt('Enter learner full name:');if(!n)return;n=n.trim().toUpperCase();if(!n)return;if(DATA.some(d=>d[0]==cls&&d[1]==n)){alert('Learner already exists in '+cls);return;}let s=prompt('Sex M/F:','F');let sex=(s||'F').toUpperCase().startsWith('M')?'M':'F';DATA.push([cls,n,sex]);sortClassInDATA(cls);rebuildClasses();saveDATA();let rows=getRows();if(!rows.some(r=>r.name==n))rows.push({name:n,sex:sex,ind:'',grp:'',cls:'',pro:'',exm:''});rows.sort((a,b)=>a.name.localeCompare(b.name));let att=getAtt();if(!att.some(r=>r.name==n))att.push({name:n,att:'',conduct:'',attitude:'',interest:'',remarks:''});att.sort((a,b)=>a.name.localeCompare(b.name));localStorage.setItem('bomso_att',JSON.stringify(attStore));save(false);let sel=document.getElementById('repLearner');if(sel)sel.dataset.cls='';render();alert('Added '+n+' to '+cls+'.');}
+function deleteLearner(i){if(blockIfArchive())return;let cls=document.getElementById('cls').value;let rows=getRows();let r=rows[i];if(!r)return;let name=r.name;if(!confirm('Delete '+name+' from '+cls+'? This will remove the learner everywhere. Are you sure?'))return;DATA=DATA.filter(d=>!(d[0]==cls&&d[1]==name));rebuildClasses();Object.keys(store).forEach(k=>{if(k.startsWith(cls+'|')){store[k]=store[k].filter(x=>x.name!=name);}});Object.keys(attStore).forEach(k=>{if(k.startsWith(cls+'|')){attStore[k]=attStore[k].filter(x=>x.name!=name);}});try{repeaters=repeaters.filter(x=>x!=cls+'|'+name);saveRepeaters();}catch(e){}saveDATA();localStorage.setItem('bomso_att',JSON.stringify(attStore));save(false);let sel=document.getElementById('repLearner');if(sel)sel.dataset.cls='';render();alert('Deleted '+name+' from '+cls+'.');}
+function save(m){cloudSave(m);}function saveAttitude(){if(blockIfArchive())return;localStorage.setItem('bomso_att',JSON.stringify(attStore));cloudSave(false);alert('Attitude Saved');}
+function syncNames(){if(blockIfArchive())return;let c=document.getElementById('cls').value;let list=DATA.filter(d=>d[0]==c);let k=key();let old=store[k]||[];let map={};old.forEach(r=>map[r.name]=r);store[k]=list.map(d=>map[d[1]]||{name:d[1],sex:d[2],ind:'',grp:'',cls:'',pro:'',exm:''});store[k].sort((a,b)=>a.name.localeCompare(b.name));save(false);render();alert('Names synced');}
+function exportBroadsheetCSV(){let bl=getBroadList();let mode=document.getElementById('broadMode').value;let rows=[['NAME'].concat(BROAD_SUBJECTS.map(s=>s.code+' MARK')).concat(BROAD_SUBJECTS.map(s=>s.code+' GRD')).concat(['TOTAL','AGGR','RawScore','POSITION','CLASS'])];bl.forEach((r)=>{rows.push([r.name].concat(r.marks.map(m=>m==null?'':m.toFixed(1))).concat(r.grades.map(g=>g==null?'':g)).concat([r.has?r.total.toFixed(1):'',r.has?r.aggr:'',r.has?r.raw.toFixed(1):'',r.has?r.pos:'',r.cls]))});let csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Broadsheet-'+mode+'-'+document.getElementById('term').value+'.csv';a.click();}
+let repeaters=JSON.parse(localStorage.getItem('bomso_repeaters')||'[]');function saveRepeaters(){if(viewingArchive)return;localStorage.setItem('bomso_repeaters',JSON.stringify(repeaters));pushToFirebase();}
+function renderPromotionList(){let h='';['JHS 1A','JHS 1B','JHS 1C','JHS 2A','JHS 2B','JHS 2C','JHS 3A','JHS 3B','JHS 3C'].forEach(cls=>{let list=DATA.filter(d=>d[0]==cls).sort((a,b)=>a[1].localeCompare(b[1]));if(!list.length)return;h+='<h4>'+cls+' ('+list.length+') - Tick to REPEAT</h4>';list.forEach(d=>{let k=cls+'|'+d[1];let ch=repeaters.includes(k)?'checked':'';h+='<label style="display:block;padding:4px;border-bottom:1px solid #eee"><input type="checkbox" '+ch+' onchange="toggleRepeater(this)" data-key="'+k+'"> '+d[1]+' - <b>'+(ch?'WILL REPEAT':'WILL BE PROMOTED')+'</b></label>';});});document.getElementById('promoArea').innerHTML=h+'<p style="color:green;font-weight:bold">Repeaters ticked: '+repeaters.length+'</p>';renderPromoHistory();}
+function toggleRepeater(el){if(blockIfArchive()){renderPromotionList();return;}let k=el.getAttribute('data-key');if(el.checked){if(!repeaters.includes(k))repeaters.push(k);}else{repeaters=repeaters.filter(r=>r!==k);}saveRepeaters();renderPromotionList();}
+function restorePromoBackup(bk){
+DATA.length=0;
+let src=bk.listData||bk.DATA;
+src.forEach(d=>DATA.push(d));
+store=cp(bk.marksData||bk.store||{});
+attStore=cp(bk.attData||bk.attStore||{});
+if(bk.year){metaStore.year=bk.year;metaStore.academicYear=bk.year;localStorage.setItem('bomso_meta',JSON.stringify(metaStore));}
+blankSlots={};
+saveBlanks();
+rebuildClasses();
+document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
+repeaters=cp(bk.repList||[]);
+saveRepeaters();
+saveDATA();
+cloudSave(false);
+buildAcademicYears();
+let sel=document.getElementById('repLearner');
+if(sel)sel.dataset.cls='';
+render();
+renderPromotionList();
+}
+function doPromote(){
+if(blockIfArchive())return;
+let curYear=metaStore.year||document.getElementById('academicYear').value||'2026/2027';
+let toYear=nextYear(curYear);
+let validKeys={};
+DATA.forEach(d=>{validKeys[d[0]+'|'+d[1]]=true;});
+repeaters=repeaters.filter(k=>validKeys[k]);
+saveRepeaters();
+let c1A=DATA.filter(d=>d[0]=='JHS 1A').length;
+let c1B=DATA.filter(d=>d[0]=='JHS 1B').length;
+let c1C=DATA.filter(d=>d[0]=='JHS 1C').length;
+let c1=c1A+c1B+c1C;
+let c2=DATA.filter(d=>d[0]=='JHS 2A'||d[0]=='JHS 2B'||d[0]=='JHS 2C').length;
+let c3=DATA.filter(d=>d[0]=='JHS 3A'||d[0]=='JHS 3B'||d[0]=='JHS 3C').length;
+let rep1=repeaters.filter(k=>k.indexOf('JHS 1')===0).length;
+let willMove1=c1-rep1;
+if(c1<10){alert('STOP! JHS 1 has only '+c1+' learners. It looks like you already promoted. Press UNDO ALL first to go back to 2026/2027 with full JHS 1, then promote ONCE.');return;}
+if(!confirm('PROMOTE ALL?\n\nFrom: '+curYear+'\nTo: '+toYear+'\n\nJHS 1 total: '+c1+' (1A='+c1A+', 1B='+c1B+', 1C='+c1C+')\nJHS 1 Repeaters: '+rep1+'\nJHS 1 WILL MOVE to JHS 2: '+willMove1+'\nJHS 2 total: '+c2+' will move to JHS 3\nJHS 3 total: '+c3+' will become OLD STUDENTS - '+curYear+'\n\nContinue?'))return;
+let backup=snap();
+backup.listData=backup.DATA;
+backup.marksData=backup.store;
+backup.attData=backup.attStore;
+backup.repList=cp(repeaters);
+backup.year=curYear;
+backup.from=curYear;
+backup.to=toYear;
+promoHistory.push(backup);
+savePromoHistory();
+localStorage.setItem('bomso_promotion_backup',JSON.stringify(backup));
+archiveStore[curYear]=snap();
+saveArchiveStore();
+let next={'JHS 1A':'JHS 2A','JHS 1B':'JHS 2B','JHS 1C':'JHS 2C','JHS 2A':'JHS 3A','JHS 2B':'JHS 3B','JHS 2C':'JHS 3C'};
+let moved1=0,moved2=0,moved3=0;
+DATA.forEach(d=>{
+let cls=d[0],k=cls+'|'+d[1];
+if(repeaters.includes(k))return;
+if(cls.indexOf('JHS 3')===0){d[0]='OLD STUDENTS - '+curYear;moved3++;}
+else if(next[cls]){if(cls.indexOf('JHS 1')===0)moved1++;else moved2++;d[0]=next[cls];}
+});
+repeaters=[];
+saveRepeaters();
+metaStore.year=toYear;
+metaStore.academicYear=toYear;
+localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
+store={};
+attStore={};
+blankSlots={'JHS 1A':40,'JHS 1B':40,'JHS 1C':40};
+saveBlanks();
+rebuildClasses();
+document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
+document.getElementById('term').value='Term 1';
+let ry=document.getElementById('repYear');
+if(ry)ry.value=toYear;
+saveDATA();
+cloudSave(false);
+buildAcademicYears();
+refreshArchiveSelect();
+alert('PROMOTION DONE!\n\nMoved JHS 1 to JHS 2: '+moved1+'\nMoved JHS 2 to JHS 3: '+moved2+'\nMoved JHS 3 to OLD STUDENTS - '+curYear+': '+moved3+'\nNew year: '+toYear);
+render();
+renderPromotionList();
+}
+function undoPromote(){if(blockIfArchive())return;if(!promoHistory.length){alert('No promotions to undo. You are already at your start year.');return;}let bk=promoHistory[promoHistory.length-1];if(!confirm('UNDO Last Promotion? Go back from '+(metaStore.year||'')+' to '+(bk.from||bk.year||'')+'? History left after this: '+(promoHistory.length-1)))return;promoHistory.pop();savePromoHistory();restorePromoBackup(bk);alert('UNDO DONE! Back to '+(bk.from||bk.year||'')+'. History left: '+promoHistory.length);}
+function undoAllPromote(){if(blockIfArchive())return;if(!promoHistory.length){alert('No promotions to undo.');return;}let start=promoHistory[0];if(!confirm('UNDO ALL — Back to Start? Go straight back from '+(metaStore.year||'')+' to '+(start.from||start.year||'')+'? All '+promoHistory.length+' promotion(s) will be undone. Continue?'))return;promoHistory=[];savePromoHistory();localStorage.removeItem('bomso_promotion_backup');restorePromoBackup(start);alert('UNDO ALL DONE! Back to start year '+(start.from||start.year||'')+'.');}
+function showOldStudents(){let olds=DATA.filter(d=>isOld(d[0]));if(!olds.length){document.getElementById('oldArea').innerHTML='<b>No Old Students yet.</b>';return;}let groups={};olds.forEach(d=>{if(!groups[d[0]])groups[d[0]]=[];groups[d[0]].push(d);});let html='<h4>Old Students — Total: '+olds.length+' (NOT counted in Dashboard / Class list)</h4>';Object.keys(groups).sort().forEach(g=>{html+='<h5>'+g+' ('+groups[g].length+')</h5><table><tr><th>Name</th><th>Group</th><th>Sex</th></tr>'+groups[g].sort((a,b)=>a[1].localeCompare(b[1])).map(d=>'<tr><td class="name">'+d[1]+'</td><td>'+d[0]+'</td><td>'+d[2]+'</td></tr>').join('')+'</table>';});document.getElementById('oldArea').innerHTML=html;}
+function exportPromotionCSV(){let rows=[['Old Class','Name','Sex','New Class']];let b=localStorage.getItem('bomso_promotion_backup');if(b){let bk=JSON.parse(b);let src=bk.listData||bk.DATA;src.forEach(d=>{let cur=DATA.find(x=>x[1]==d[1]);rows.push([d[0],d[1],d[2],cur?cur[0]:''])});}else DATA.forEach(d=>rows.push([d[0],d[1],d[2],d[0]]));let csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Promotion-List.csv';a.click();}
+let sel=document.getElementById('cls');sel.innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');buildAcademicYears();refreshArchiveSelect();render();
+if(firebaseReady){document.getElementById('cloudStatus').innerText='Firebase Connected - bomso-jhs - Login to load';}
+document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('loginEmail').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 </script></body></html>
