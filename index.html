@@ -112,7 +112,6 @@ function pullFromFirebase(){
     }
   });
 }
-}
 function isOld(cls){return String(cls||'').indexOf('OLD STUDENTS')===0;}
 function activeClasses(){return [...new Set(DATA.filter(d=>!isOld(d[0])).map(d=>d[0]))];}
 function rebuildClasses(){classes=activeClasses();['JHS 1A','JHS 1B','JHS 1C','JHS 2A','JHS 2B','JHS 2C','JHS 3A','JHS 3B','JHS 3C'].forEach(c=>{if(!classes.includes(c))classes.push(c);});}
