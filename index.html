@@ -609,67 +609,40 @@ if(sel)sel.dataset.cls='';
 render();
 renderPromotionList();
 }
-function doPromote(){
-if(blockIfArchive())return;
-let curYear=metaStore.year||document.getElementById('academicYear').value||'2026/2027';
-let toYear=nextYear(curYear);
-let validKeys={};
-DATA.forEach(d=>{validKeys[d[0]+'|'+d[1]]=true;});
-repeaters=repeaters.filter(k=>validKeys[k]);
-saveRepeaters();
-let c1A=DATA.filter(d=>d[0]=='JHS 1A').length;
-let c1B=DATA.filter(d=>d[0]=='JHS 1B').length;
-let c1C=DATA.filter(d=>d[0]=='JHS 1C').length;
-let c1=c1A+c1B+c1C;
-let c2=DATA.filter(d=>d[0]=='JHS 2A'||d[0]=='JHS 2B'||d[0]=='JHS 2C').length;
-let c3=DATA.filter(d=>d[0]=='JHS 3A'||d[0]=='JHS 3B'||d[0]=='JHS 3C').length;
-let rep1=repeaters.filter(k=>k.indexOf('JHS 1')===0).length;
-let willMove1=c1-rep1;
-if(c1<10){alert('STOP! JHS 1 has only '+c1+' learners. It looks like you already promoted. Press UNDO ALL first to go back to 2026/2027 with full JHS 1, then promote ONCE.');return;}
-if(!confirm('PROMOTE ALL?\n\nFrom: '+curYear+'\nTo: '+toYear+'\n\nJHS 1 total: '+c1+' (1A='+c1A+', 1B='+c1B+', 1C='+c1C+')\nJHS 1 Repeaters: '+rep1+'\nJHS 1 WILL MOVE to JHS 2: '+willMove1+'\nJHS 2 total: '+c2+' will move to JHS 3\nJHS 3 total: '+c3+' will become OLD STUDENTS - '+curYear+'\n\nContinue?'))return;
-let backup=snap();
-backup.listData=backup.DATA;
-backup.marksData=backup.store;
-backup.attData=backup.attStore;
-backup.repList=cp(repeaters);
-backup.year=curYear;
-backup.from=curYear;
-backup.to=toYear;
-promoHistory.push(backup);
-savePromoHistory();
-localStorage.setItem('bomso_promotion_backup',JSON.stringify(backup));
-archiveStore[curYear]=snap();
-saveArchiveStore();
-let next={'JHS 1A':'JHS 2A','JHS 1B':'JHS 2B','JHS 1C':'JHS 2C','JHS 2A':'JHS 3A','JHS 2B':'JHS 3B','JHS 2C':'JHS 3C'};
-let moved1=0,moved2=0,moved3=0;
-DATA.forEach(d=>{
-let cls=d[0],k=cls+'|'+d[1];
-if(repeaters.includes(k))return;
-if(cls.indexOf('JHS 3')===0){d[0]='OLD STUDENTS - '+curYear;moved3++;}
-else if(next[cls]){if(cls.indexOf('JHS 1')===0)moved1++;else moved2++;d[0]=next[cls];}
-});
-repeaters=[];
-saveRepeaters();
-metaStore.year=toYear;
-metaStore.academicYear=toYear;
-localStorage.setItem('bomso_meta',JSON.stringify(metaStore));
-store={};
-attStore={};
-blankSlots={'JHS 1A':40,'JHS 1B':40,'JHS 1C':40};
-saveBlanks();
-rebuildClasses();
-document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join('');
-document.getElementById('term').value='Term 1';
-let ry=document.getElementById('repYear');
-if(ry)ry.value=toYear;
-saveDATA();
-cloudSave(false);
-buildAcademicYears();
-refreshArchiveSelect();
-alert('PROMOTION DONE!\n\nMoved JHS 1 to JHS 2: '+moved1+'\nMoved JHS 2 to JHS 3: '+moved2+'\nMoved JHS 3 to OLD STUDENTS - '+curYear+': '+moved3+'\nNew year: '+toYear);
-render();
-renderPromotionList();
-}
+function doPromote(){ if(blockIfArchive())return; let curYear=metaStore.year||document.getElementById('academicYear').value||'2026/2027'; let toYear=nextYear(curYear); let validKeys={}; DATA.forEach(d=>{validKeys[d[0]+'|'+d[1]]=true;}); repeaters=repeaters.filter(k=>validKeys[k]); saveRepeaters(); let c1A=DATA.filter(d=>d[0]=='JHS 1A').length; let c1B=DATA.filter(d=>d[0]=='JHS 1B').length; let c1C=DATA.filter(d=>d[0]=='JHS 1C').length; let c1=c1A+c1B+c1C; let c2=DATA.filter(d=>d[0]=='JHS 2A'||d[0]=='JHS 2B'||d[0]=='JHS 2C').length; let c3=DATA.filter(d=>d[0]=='JHS 3A'||d[0]=='JHS 3B'||d[0]=='JHS 3C').length; let rep1=repeaters.filter(k=>k.indexOf('JHS 1')===0).length; let willMove1=c1-rep1; if(c1<10){alert('STOP! JHS 1 has only '+c1+' learners. It looks like you already promoted. Press UNDO ALL first to go back to 2026/2027 with full JHS 1, then promote ONCE.');return;} if(!confirm('PROMOTE ALL?\n\nFrom: '+curYear+'\nTo: '+toYear+'\n\nJHS 1 total: '+c1+' (1A='+c1A+', 1B='+c1B+', 1C='+c1C+')\nJHS 1 Repeaters: '+rep1+'\nJHS 1 WILL MOVE to JHS 2: '+willMove1+'\nJHS 2 total: '+c2+' will move to JHS 3\nJHS 3 total: '+c3+' will become OLD STUDENTS - '+curYear+'\n\nContinue?'))return; let backup=snap(); backup.listData=backup.DATA; backup.marksData=backup.store; backup.attData=backup.attStore; backup.repList=cp(repeaters); backup.year=curYear; backup.from=curYear; backup.to=toYear; promoHistory.push(backup); savePromoHistory(); localStorage.setItem('bomso_promotion_backup',JSON.stringify(backup)); archiveStore[curYear]=snap(); saveArchiveStore();
+
+ // --- NEW: BROADSHEET PROMOTION ONLY ---
+ function getBroadsheetTotal(d){
+   // Try to use your broadsheet total if you have it, else calculate from store
+   // d = [class, name, sex, ...]
+   let key = d[0]+'|'+d[1];
+   // Try common places where marks are stored
+   let marks = (typeof store!=='undefined' && store[key]) ? store[key] : (typeof store!=='undefined' && store[d[1]]) ? store[d[1]] : null;
+   if(!marks) return 0;
+   let total = 0;
+   for(let k in marks){ let v = Number(marks[k]); if(!isNaN(v)) total += v; }
+   return total;
+ }
+ function doBroadsheetMove(fromClasses, toA, toB, toC){
+   let movers = DATA.filter(d=>fromClasses.indexOf(d[0])>=0 && !repeaters.includes(d[0]+'|'+d[1]));
+   movers.sort((a,b)=>getBroadsheetTotal(b)-getBroadsheetTotal(a));
+   let topCount = Math.ceil(movers.length/3);
+   movers.forEach((d,i)=>{
+     if(i < topCount){ d[0]=toA; }
+     else {
+       let restIndex = i - topCount;
+       d[0] = (restIndex % 2===0) ? toB : toC;
+     }
+   });
+   return movers.length;
+ }
+ let moved1 = doBroadsheetMove(['JHS 1A','JHS 1B','JHS 1C'],'JHS 2A','JHS 2B','JHS 2C');
+ let moved2 = doBroadsheetMove(['JHS 2A','JHS 2B','JHS 2C'],'JHS 3A','JHS 3B','JHS 3C');
+ let moved3=0;
+ DATA.forEach(d=>{ let cls=d[0],k=cls+'|'+d[1]; if(repeaters.includes(k))return; if(cls.indexOf('JHS 3')===0){d[0]='OLD STUDENTS - '+curYear;moved3++;} });
+ // --- END NEW ---
+
+ repeaters=[]; saveRepeaters(); metaStore.year=toYear; metaStore.academicYear=toYear; localStorage.setItem('bomso_meta',JSON.stringify(metaStore)); store={}; attStore={}; blankSlots={'JHS 1A':40,'JHS 1B':40,'JHS 1C':40}; saveBlanks(); rebuildClasses(); document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join(''); document.getElementById('term').value='Term 1'; let ry=document.getElementById('repYear'); if(ry)ry.value=toYear; saveDATA(); cloudSave(false); buildAcademicYears(); refreshArchiveSelect(); alert('PROMOTION DONE!\n\nMoved JHS 1 to JHS 2: '+moved1+'\nMoved JHS 2 to JHS 3: '+moved2+'\nMoved JHS 3 to OLD STUDENTS - '+curYear+': '+moved3+'\nNew year: '+toYear); render(); renderPromotionList(); }
 function undoPromote(){if(blockIfArchive())return;if(!promoHistory.length){alert('No promotions to undo. You are already at your start year.');return;}let bk=promoHistory[promoHistory.length-1];if(!confirm('UNDO Last Promotion? Go back from '+(metaStore.year||'')+' to '+(bk.from||bk.year||'')+'? History left after this: '+(promoHistory.length-1)))return;promoHistory.pop();savePromoHistory();restorePromoBackup(bk);alert('UNDO DONE! Back to '+(bk.from||bk.year||'')+'. History left: '+promoHistory.length);}
 function undoAllPromote(){if(blockIfArchive())return;if(!promoHistory.length){alert('No promotions to undo.');return;}let start=promoHistory[0];if(!confirm('UNDO ALL — Back to Start? Go straight back from '+(metaStore.year||'')+' to '+(start.from||start.year||'')+'? All '+promoHistory.length+' promotion(s) will be undone. Continue?'))return;promoHistory=[];savePromoHistory();localStorage.removeItem('bomso_promotion_backup');restorePromoBackup(start);alert('UNDO ALL DONE! Back to start year '+(start.from||start.year||'')+'.');}
 function showOldStudents(){let olds=DATA.filter(d=>isOld(d[0]));if(!olds.length){document.getElementById('oldArea').innerHTML='<b>No Old Students yet.</b>';return;}let groups={};olds.forEach(d=>{if(!groups[d[0]])groups[d[0]]=[];groups[d[0]].push(d);});let html='<h4>Old Students — Total: '+olds.length+' (NOT counted in Dashboard / Class list)</h4>';Object.keys(groups).sort().forEach(g=>{html+='<h5>'+g+' ('+groups[g].length+')</h5><table><tr><th>Name</th><th>Group</th><th>Sex</th></tr>'+groups[g].sort((a,b)=>a[1].localeCompare(b[1])).map(d=>'<tr><td class="name">'+d[1]+'</td><td>'+d[0]+'</td><td>'+d[2]+'</td></tr>').join('')+'</table>';});document.getElementById('oldArea').innerHTML=html;}
