@@ -106,7 +106,7 @@ function pullFromFirebase(){
       }
       if(v.metaStore) metaStore=v.metaStore;
       if(v.year){ metaStore.year=v.year; metaStore.academicYear=v.year; }
-      try{ rebuildClasses(); document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join(''); }catch(e){}
+     try{ let _oldCls=document.getElementById('cls').value; rebuildClasses(); document.getElementById('cls').innerHTML=classes.map(c=>'<option>'+c+'</option>').join(''); if(_oldCls && classes.includes(_oldCls)) document.getElementById('cls').value=_oldCls; }catch(e){}
       try{ if(typeof buildTable==='function') buildTable(); }catch(e){}
       let el=document.getElementById('cloudStatus');
       if(el) el.textContent='Synced from cloud';
